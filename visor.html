@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Visor de Turnos</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: lightgray;
+        }
+
+        .current-turn {
+            font-size: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Visor de Turnos</h1>
+
+    <table>
+        <tr>
+            <th>Comercial</th>
+            <th>Veterinaria</th>
+        </tr>
+		<tr>
+            <th colspan="2">Turnos actuales</th>
+        </tr>
+        <tr>
+            <td rowspan="4">
+            
+                <div id="current-turn"></div>
+            </td>
+            <td>Box 1</td>
+        </tr>
+        <tr>
+            <td id="box1-turn"></td>
+        </tr>
+        <tr>
+            <td>Box 2</td>
+        </tr>
+		<tr>
+            <td id="box2-turn"></td>
+        </tr>
+        <tr>
+            <th colspan="2">Turnos siguientes</th>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <div id="next-turns"></div>
+            </td>
+        </tr>
+    </table>
+
+    <script>
+        function setBoxOccupied(boxNumber) {
+            // Aquí puedes implementar la lógica para marcar el box como ocupado
+            // por ejemplo, cambiar el color de fondo del cuadro o mostrar un mensaje
+
+            // Después de marcar el box como ocupado, puedes actualizar el visor llamando a la función updateVisor()
+            updateVisor();
+        }
+
+        function setBoxAvailable(boxNumber) {
+            // Aquí puedes implementar la lógica para marcar el box como disponible
+            // por ejemplo, cambiar el color de fondo del cuadro o mostrar un mensaje
+
+            // Después de marcar el box como disponible, puedes actualizar el visor llamando a la función updateVisor()
+            updateVisor();
+        }
+
+        function updateVisor() {
+            // Aquí puedes implementar la lógica para actualizar el contenido del visor con los turnos actuales y siguientes
+
+            // Ejemplo de actualización de contenido en el visor
+            var currentTurn = "c01"; // Obtén el turno actual de la parte comercial
+            var box1Turn = "v01"; // Obtén el turno actual del box 1 en veterinaria
+            var nextTurns = ["c02", "c03", "v02", "v03"]; // Obtén los turnos siguientes
+
+            document.getElementById("current-turn").innerText = currentTurn;
+            document.getElementById("box1-turn").innerText = box1Turn;
+			
+
+            var nextTurnsHTML = "";
+            for (var i = 0; i < nextTurns.length; i++) {
+                nextTurnsHTML += nextTurns[i] + "<br>";
+            }
+            document.getElementById("next-turns").innerHTML = nextTurnsHTML;
+        }
+
+        // Llama a la función updateVisor() cuando se carga la página
+        window.onload = updateVisor;
+    </script>
+</body>
+</html>
+<!--
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Turno actual</title>
+	<script src="script.js"></script>
+</head>
+<body>
+	<h1>Turno actual:</h1>
+	<div id="turno"></div>
+<style> body {
+	font-family: Arial, sans-serif;
+	font-size: 24px;
+	text-align: center;
+	margin-top: 100px;
+}
+
+#turno {
+	font-size: 48px;
+	font-weight: bold;
+	margin-top: 50px;
+}
+</style>
+	<script>
+	const url = 'turno.txt';
+
+function actualizarTurno() {
+    const request = new XMLHttpRequest();
+    request.open('GET', url);
+
+    request.onload = () => {
+        if (request.status === 200) {
+            const turno = request.responseText.trim();
+            document.getElementById('turno').textContent = turno;
+        }
+    };
+
+    request.send();
+}
+
+// Actualizar el turno cada 5 segundos
+setInterval(actualizarTurno, 5000);
+	// Aquí va el código JavaScript
+	</script>
+</body>
+</html>
+-->
