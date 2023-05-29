@@ -16,11 +16,12 @@ $printer->setJustification(Printer::JUSTIFY_CENTER);
     el logo
 */
 try {
-    $logo = EscposImage::load("p1/logo.jpg", false);
+    $logo = EscposImage::load("prueba.jpg", false);
     $printer->bitImage($logo);
 } catch (Exception $e) {
-    /*No hacemos nada si hay error*/
+    // No hacemos nada si hay error
 }
+
 
 /*
     Ahora vamos a imprimir un encabezado
@@ -67,7 +68,7 @@ $printer->close();
 
 # Función para obtener el último turno impreso
 function obtener_turno_actual() {
-    $turno_actual = file_get_contents("turno.txt");
+    $turno_actual = file_get_contents("turnoC.txt");
     if (!is_numeric($turno_actual)) {
         $turno_actual = 0;
     }

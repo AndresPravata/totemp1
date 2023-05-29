@@ -62,26 +62,6 @@
 										   }); 
 										});
 									});
-									$(document).ready(function(){
-			$('#btnImprimirC').click(function(){
-				$.ajax({
-					url: 'guardarC.php',
-					type: 'POST',
-					data: {
-						nombre_turno: 'C',
-						fecha_hora_inicio: new Date().toISOString(),
-						numero_box: 3
-					},
-					success: function(response){
-						if(response == 1){
-							alert('Imprimiendo....');
-						}else{
-							alert('Error');
-						}
-					}
-				}); 
-			});
-		});
 								</script>
 							</article>
 							
@@ -168,23 +148,21 @@
 <script src="jquery-3.1.1.min.js"></script>
 <script>
 	$(document).ready(function(){
-    $('#btnImprimirA').click(function(){
-       $.ajax({
-           url: 'ticketA.php',
-           type: 'POST',
-           success: function(response){
-               if(response==1){
-                   alert('Imprimiendo....');
-               }else{
-                   alert('Error');
-               }
-           }
-       }); 
-    });
-});
-$(document).ready(function() {
-    var numeroTurno = null; // Variable para almacenar el número del turno
-
+										$('#btnImprimirA').click(function(){
+										   $.ajax({
+											   url: 'ticketA.php',
+											   type: 'POST',
+											   success: function(response){
+												   if(response==1){
+													   alert('Imprimiendo....');
+												   }else{
+													   alert('Error');
+												   }
+											   }
+										   }); 
+										});
+									});
+  $(document).ready(function() {
     $('.veterinario').click(function() {
       $('.veterinario').removeClass('seleccionado');
       $(this).addClass('seleccionado');
@@ -195,47 +173,24 @@ $(document).ready(function() {
     $('#btnImprimirA').click(function() {
       var veterinarioSeleccionado = $('.veterinario.seleccionado');
       if (veterinarioSeleccionado.length > 0) {
-        if (numeroTurno !== null) {
-          var nombreTurno = 'A' + numeroTurno.toString().padStart(2, '0');
-          var fechaHoraInicio = new Date().toISOString();
-          var numeroBox = veterinarioSeleccionado.index() + 1;
+        var veterinarioIndex = veterinarioSeleccionado.index() + 1;
+        var nombreTurno = 'A' + ($('#formularioTurno').find('.nombreTurno').length + 1).toString().padStart(2, '0');
+        var fechaHoraInicio = new Date().toISOString();
+        var numeroBox = veterinarioIndex;
 
-          $('#nombre_turno').val(nombreTurno);
-          $('#fecha_hora_inicio').val(fechaHoraInicio);
-          $('#numero_box').val(numeroBox);
+        $('#nombre_turno').val(nombreTurno);
+        $('#fecha_hora_inicio').val(fechaHoraInicio);
+        $('#numero_box').val(numeroBox);
 
-          // Incrementar el número del turno en la memoria
-          numeroTurno++;
-
-          $('#formularioTurno').submit();
-        } else {
-          alert('El número del turno no ha sido obtenido correctamente.');
-        }
+        $('#formularioTurno').submit();
       } else {
         alert('Por favor, seleccione un veterinario antes de imprimir el turno.');
       }
     });
-
-    // Obtener el número del turno del archivo "turno.txt"
-    $.get("turno.txt", function(data) {
-      var numero = parseInt(data);
-      if (!isNaN(numero)) {
-        numeroTurno = numero + 0; // Incrementar el número del turno en 1
-      } else {
-        alert('El archivo "turno.txt" no contiene un número válido.');
-      }
-    }).fail(function() {
-      alert('Error al obtener el número del archivo "turno.txt".');
-    });
   });
 </script>
-  
-  
-  
 
 						   </article>
-
-						  
 						<!-- About -->
 						<article id="about" style="max-width: 18200px;" style="min-width: 11200px;"class="active">
 							<h2 class="major">Peluquería</h2>
@@ -646,3 +601,18 @@ print 'It took ' + i + ' iterations to sort the deck.';</code></pre>
 
 	</body>
 </html>
+$(document).ready(function(){
+    $('#btnImprimirA').click(function(){
+       $.ajax({
+           url: 'ticketA.php',
+           type: 'POST',
+           success: function(response){
+               if(response==1){
+                   alert('Imprimiendo....');
+               }else{
+                   alert('Error');
+               }
+           }
+       }); 
+    });
+});
