@@ -19,5 +19,10 @@ $turnosSelect = array();
 while ($row = $result->fetch_assoc()) {
     $turnosSelect[] = $row;
 }
+
+$turnosString = json_encode($turnosSelect);
+echo $turnosString;
+
 $conn->close();
+
 ?>
