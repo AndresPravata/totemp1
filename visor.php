@@ -11,16 +11,19 @@ if ($conn->connect_error) {
 }
 date_default_timezone_set("America/Argentina/Buenos_Aires");
 
-// Obtener los datos de la tabla turnos
-$sql = "SELECT nombre_turno, numero_box FROM turnos ORDER BY nombre_turno";
+// Obtener los datos de la tabla turnos ordenados por estado y nombre_turno
+$sql = "SELECT nombre_turno, numero_box, estado FROM turnos ORDER BY estado, nombre_turno";
 $result = $conn->query($sql);
 
-$turnosSelect = array();
+$currentTurns = array();
+$nextTurns = array();
 while ($row = $result->fetch_assoc()) {
-    $turnosSelect[] = $row;
+    if ($row['estado'] === 'actual') {
+        $currentTurns[] = $row;
+    } else {
+        $nextTurns[] = $row;
+    }
 }
-
-$turnosString = json_encode($turnosSelect);
 
 $conn->close();
 ?>
@@ -88,8 +91,8 @@ $conn->close();
     </table>
 
     <script>
-        var currentTurns = <?php echo $turnosString; ?>;
-        var nextTurns = [];
+        var currentTurns = <?php echo json_encode($currentTurns); ?>;
+        var nextTurns = <?php echo json_encode($nextTurns); ?>;
 
         function setBoxOccupied(boxNumber) {
             // Aquí puedes implementar la lógica para marcar el box como ocupado
@@ -139,8 +142,25 @@ $conn->close();
             }
         }
 
+        function updateTurns() {
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    var response = JSON.parse(this.responseText);
+                    currentTurns = response.currentTurns;
+                    nextTurns = response.nextTurns;
+                    updateVisor();
+                }
+            };
+            xmlhttp.open("GET", "update_turns.php", true);
+            xmlhttp.send();
+        }
+
         // Llama a la función updateVisor() cuando se carga la página
-        window.onload = updateVisor;
+        window.onload = function() {
+            updateVisor();
+            setInterval(updateTurns, 5000); // Actualizar cada 5 segundos (ajustar según tus necesidades)
+        };
     </script>
 </body>
 </html>

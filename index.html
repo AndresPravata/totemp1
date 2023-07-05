@@ -118,6 +118,7 @@
   <input type="hidden" id="nombre_turno" name="nombre_turno" value="">
   <input type="hidden" id="fecha_hora_inicio" name="fecha_hora_inicio" value="">
   <input type="hidden" id="numero_box" name="numero_box" value="">
+  <input type="hidden" id="estado" name="estado" value="">
   <div class="disponibilidad">
     <!-- Contenido de la disponibilidad -->
   </div>
@@ -199,10 +200,11 @@ $(document).ready(function() {
           var nombreTurno = 'A' + numeroTurno.toString().padStart(2, '0');
           var fechaHoraInicio = new Date().toISOString();
           var numeroBox = veterinarioSeleccionado.index() + 1;
-
+          var estado = 'espera';
           $('#nombre_turno').val(nombreTurno);
           $('#fecha_hora_inicio').val(fechaHoraInicio);
           $('#numero_box').val(numeroBox);
+		  $('#estado').val(espera);
 
           // Incrementar el número del turno en la memoria
           numeroTurno++;
