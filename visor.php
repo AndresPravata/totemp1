@@ -1,7 +1,33 @@
+<?php
+$servername = "localhost";
+$username = "root";
+$password = "123";
+$dbname = "turnos";
+
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+if ($conn->connect_error) {
+    die("Error de conexión: " . $conn->connect_error);
+}
+date_default_timezone_set("America/Argentina/Buenos_Aires");
+
+// Obtener los datos de la tabla turnos
+$sql = "SELECT nombre_turno, numero_box FROM turnos ORDER BY nombre_turno";
+$result = $conn->query($sql);
+
+$turnosSelect = array();
+while ($row = $result->fetch_assoc()) {
+    $turnosSelect[] = $row;
+}
+
+$turnosString = json_encode($turnosSelect);
+
+$conn->close();
+?>
+
 <!DOCTYPE html>
 <html>
 <head>
-    
     <title>Visor de Turnos</title>
     <style>
         table {
@@ -33,7 +59,7 @@
             <th>Comercial</th>
             <th>Veterinaria</th>
         </tr>
-		<tr>
+        <tr>
             <th colspan="2">Turnos actuales</th>
         </tr>
         <tr>
@@ -48,7 +74,7 @@
         <tr>
             <td>Box 2</td>
         </tr>
-		<tr>
+        <tr>
             <td id="box2-turn"></td>
         </tr>
         <tr>
@@ -60,29 +86,11 @@
             </td>
         </tr>
     </table>
-    <script src="jquery-3.1.1.min.js">
- 
-        // Variables para almacenar los turnos
-        
-        $(document).ready(function() {
-            $.ajax({
-                url: 'leer.php',
-                type: 'GET',
-                dataType: 'json',
-                success: function(data) {
-                    var currentTurns = data;
-                    // Aquí puedes usar la variable currentTurns como desees
-                    console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-                    console.log(currentTurns);
-                },
-                error: function(xhr, status, error) {
-                    console.log('Error en la solicitud AJAX');
-                }
-            });
-        });
-        console.log(currentTurns);
+
+    <script>
+        var currentTurns = <?php echo $turnosString; ?>;
         var nextTurns = [];
-       
+
         function setBoxOccupied(boxNumber) {
             // Aquí puedes implementar la lógica para marcar el box como ocupado
             // por ejemplo, cambiar el color de fondo del cuadro o mostrar un mensaje
