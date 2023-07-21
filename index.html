@@ -70,7 +70,7 @@
 					data: {
 						nombre_turno: 'C',
 						fecha_hora_inicio: new Date().toISOString(),
-						numero_box: 3
+						numero_box: 4
 					},
 					success: function(response){
 						if(response == 1){
@@ -118,7 +118,7 @@
   <input type="hidden" id="nombre_turno" name="nombre_turno" value="">
   <input type="hidden" id="fecha_hora_inicio" name="fecha_hora_inicio" value="">
   <input type="hidden" id="numero_box" name="numero_box" value="">
-  <input type="hidden" id="estado" name="estado" value="">
+  
   <div class="disponibilidad">
     <!-- Contenido de la disponibilidad -->
   </div>
@@ -204,7 +204,7 @@ $(document).ready(function() {
           $('#nombre_turno').val(nombreTurno);
           $('#fecha_hora_inicio').val(fechaHoraInicio);
           $('#numero_box').val(numeroBox);
-		  $('#estado').val(espera);
+		  
 
           // Incrementar el número del turno en la memoria
           numeroTurno++;

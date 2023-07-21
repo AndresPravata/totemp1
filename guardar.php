@@ -14,8 +14,8 @@ $veterinarioId = $_POST['veterinario_id'];
 $nombreTurno = "A" . (intval(file_get_contents("turno.txt")) ); // Obtener el número de turno de turnoC.txt y sumarle 1
 $fechaHoraInicio = $_POST['fecha_hora_inicio'];
 $numeroBox = $_POST['numero_box'];
-
-$sql = "INSERT INTO Turnos (veterinario_id, fecha_hora_inicio, nombre_turno, numero_box) VALUES ($veterinarioId, '$fechaHoraInicio', '$nombreTurno', $numeroBox)";
+$estado = "espera"; // Establecer el estado como "espera"
+$sql = "INSERT INTO Turnos (veterinario_id, fecha_hora_inicio, nombre_turno, numero_box, estado) VALUES ($veterinarioId, '$fechaHoraInicio', '$nombreTurno', $numeroBox, '$estado')";
 
 if ($conn->query($sql) === TRUE) {
     echo 1; // Éxito
@@ -25,4 +25,3 @@ if ($conn->query($sql) === TRUE) {
 
 $conn->close();
 ?>
-

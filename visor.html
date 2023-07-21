@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-    
     <title>Visor de Turnos</title>
     <style>
         table {
@@ -23,6 +22,11 @@
             font-size: 20px;
             font-weight: bold;
         }
+
+        #next-turns, #box3-turns {
+            display: flex;
+            flex-direction: column;
+        }
     </style>
 </head>
 <body>
@@ -33,7 +37,7 @@
             <th>Comercial</th>
             <th>Veterinaria</th>
         </tr>
-		<tr>
+        <tr>
             <th colspan="2">Turnos actuales</th>
         </tr>
         <tr>
@@ -48,7 +52,7 @@
         <tr>
             <td>Box 2</td>
         </tr>
-		<tr>
+        <tr>
             <td id="box2-turn"></td>
         </tr>
         <tr>
@@ -59,80 +63,14 @@
                 <div id="next-turns"></div>
             </td>
         </tr>
+        <tr>
+            <td colspan="2">
+                <div id="box3-turns"></div>
+            </td>
+        </tr>
     </table>
-    <script src="jquery-3.1.1.min.js">
- 
-        // Variables para almacenar los turnos
-        
-        $(document).ready(function() {
-            $.ajax({
-                url: 'leer.php',
-                type: 'GET',
-                dataType: 'json',
-                success: function(data) {
-                    var currentTurns = data;
-                    // Aquí puedes usar la variable currentTurns como desees
-                    console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-                    console.log(currentTurns);
-                },
-                error: function(xhr, status, error) {
-                    console.log('Error en la solicitud AJAX');
-                }
-            });
-        });
-        console.log(currentTurns);
-        var nextTurns = [];
-       
-        function setBoxOccupied(boxNumber) {
-            // Aquí puedes implementar la lógica para marcar el box como ocupado
-            // por ejemplo, cambiar el color de fondo del cuadro o mostrar un mensaje
-
-            // Después de marcar el box como ocupado, puedes actualizar el visor llamando a la función updateVisor()
-            updateVisor();
-        }
-
-        function setBoxAvailable(boxNumber) {
-            // Aquí puedes implementar la lógica para marcar el box como disponible
-            // por ejemplo, cambiar el color de fondo del cuadro o mostrar un mensaje
-
-            // Después de marcar el box como disponible, puedes actualizar el visor llamando a la función updateVisor()
-            updateVisor();
-        }
-
-        function updateVisor() {
-            // Limpiar los turnos actuales y siguientes
-            document.getElementById("current-turn").innerText = "";
-            document.getElementById("box1-turn").innerText = "";
-            document.getElementById("box2-turn").innerText = "";
-            document.getElementById("next-turns").innerHTML = "";
-
-            // Mostrar los turnos actuales
-            for (var i = 0; i < currentTurns.length; i++) {
-                var nombreTurno = currentTurns[i].nombre_turno;
-                var numeroBox = currentTurns[i].numero_box;
-
-                if (numeroBox == 1) {
-                    document.getElementById("box1-turn").innerText = nombreTurno;
-                } else if (numeroBox == 2) {
-                    document.getElementById("box2-turn").innerText = nombreTurno;
-                }
-
-                if (nombreTurno.charAt(0) === "C") {
-                    document.getElementById("current-turn").innerText = nombreTurno;
-                }
-            }
-
-            // Mostrar los turnos siguientes
-            for (var i = 0; i < nextTurns.length; i++) {
-                var nombreTurno = nextTurns[i].nombre_turno;
-                var turnoHTML = document.createElement("div");
-                turnoHTML.innerText = nombreTurno;
-                document.getElementById("next-turns").appendChild(turnoHTML);
-            }
-        }
-
-        // Llama a la función updateVisor() cuando se carga la página
-        window.onload = updateVisor;
+    <script>
+        // Aquí vendría el código JavaScript que actualiza los datos del visor y los muestra en pantalla
     </script>
 </body>
 </html>

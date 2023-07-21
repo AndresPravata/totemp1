@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Reset de Número de Turno</title>
+</head>
+<body>
+  <h1>Número de Turno: <span id="numeroTurno">0</span></h1>
+  <button onclick="resetNumeroTurno()">Reset</button>
+
+  <script>
+    function resetNumeroTurno() {
+      // Objeto XMLHttpRequest para realizar la llamada AJAX
+      var xhttp = new XMLHttpRequest();
+
+      // Configurar la llamada AJAX
+      xhttp.open("POST", "guardar_numero_turno.php", true);
+
+      // Definir el encabezado para indicar que se enviará un formulario
+      xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+      // Preparar los datos a enviar
+      var datos = "numeroTurno=0"; // Establecer el número de turno en 0
+
+      // Enviar la llamada AJAX
+      xhttp.send(datos);
+
+      // Actualizar el número de turno en la interfaz de usuario
+      document.getElementById("numeroTurno").innerText = "0";
+    }
+  </script>
+</body>
+</html>
+

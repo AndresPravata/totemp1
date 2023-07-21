@@ -10,8 +10,8 @@ if ($conn->connect_error) {
     die("Error de conexión: " . $conn->connect_error);
 }
 
-// Obtener los nuevos datos de la tabla turnos ordenados por estado y nombre_turno
-$sql = "SELECT nombre_turno, numero_box, estado FROM turnos ORDER BY estado, nombre_turno";
+// Obtener los nuevos datos de la tabla turnos ordenados por estado y nombre_turno, excluyendo los turnos finalizados
+$sql = "SELECT nombre_turno, numero_box, estado FROM turnos WHERE estado <> 'finalizado' ORDER BY estado, nombre_turno";
 $result = $conn->query($sql);
 
 $currentTurns = array();
@@ -32,4 +32,5 @@ $response = array(
 );
 
 echo json_encode($response);
+
 ?>
