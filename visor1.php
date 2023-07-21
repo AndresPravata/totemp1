@@ -23,31 +23,42 @@ while ($row = $result->fetch_assoc()) {
     $nombre_turno = $row["nombre_turno"];
     $numero_box = $row["numero_box"];
     $estado = $row["estado"];
-
-    if ($numero_box === 4) {
-        // Box de comercial
-        if ($estado === 'actual') {
-            $turnos_actuales['comercial'] = $nombre_turno;
+    if ($numero_box == 4 && $estado != 'espera') {
+        $turnos_actuales['comercial'] = $nombre_turno;
+    } else {
+        if ($estado == 'espera') {
+            $turnos_siguientes[] = array("nombre_turno" => $nombre_turno, "numero_box" => $numero_box);
         } else {
-            $turnos_siguientes[] = $nombre_turno;
-        }
-    } elseif ($numero_box >= 1 && $numero_box <= 3) {
-        // Box de veterinaria
-        if ($estado === 'actual') {
             $turnos_actuales['veterinaria'][$numero_box] = $nombre_turno;
-        } else {
-            $turnos_siguientes[] = $nombre_turno;
         }
     }
 }
 
-// Retorna los datos en formato JSON para su uso en el visor
-$turnos_data = array(
-    "actuales" => $turnos_actuales,
-    "siguientes" => $turnos_siguientes
-);
+// Agregar los turnos comerciales con estado 'espera' en la sección de 'Turnos siguientes'
+$sql_espera_comercial = "SELECT nombre_turno FROM turnos WHERE estado = 'espera' AND numero_box = 4 ORDER BY nombre_turno";
+$result_espera_comercial = $conn->query($sql_espera_comercial);
 
-echo json_encode($turnos_data);
+while ($row_espera_comercial = $result_espera_comercial->fetch_assoc()) {
+    $nombre_turno_comercial_espera = $row_espera_comercial["nombre_turno"];
+    $turno_existente = false;
+
+    // Verificar si el turno ya existe en $turnos_siguientes
+    foreach ($turnos_siguientes as $turno) {
+        if ($turno['nombre_turno'] == $nombre_turno_comercial_espera && $turno['numero_box'] == 4) {
+            $turno_existente = true;
+            break;
+        }
+    }
+
+    if (!$turno_existente) {
+        $turnos_siguientes[] = array("nombre_turno" => $nombre_turno_comercial_espera, "numero_box" => 4);
+    }
+}
+
+// Ordenar los turnos en espera por orden de llegada
+usort($turnos_siguientes, function ($a, $b) {
+    return strcmp($a['nombre_turno'], $b['nombre_turno']);
+});
 
 $conn->close();
 ?>
@@ -56,7 +67,32 @@ $conn->close();
 <head>
     <title>Visor de Turnos</title>
     <style>
-        /* Agrega aquí tu CSS para personalizar la interfaz gráfica */
+       
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        border: 1px solid black;
+        padding: 8px;
+        text-align: center;
+    }
+
+    th {
+        background-color: lightgray;
+    }
+
+    .current-turn {
+        font-size: 20px;
+        font-weight: bold;
+    }
+
+    #next-turns, #box3-turns {
+        display: flex;
+        flex-direction: column;
+    }
+
     </style>
 </head>
 <body>
@@ -71,73 +107,53 @@ $conn->close();
             <th colspan="2">Turnos actuales</th>
         </tr>
         <tr>
-            <td>
-                <div id="current-turn"></div>
+            <td rowspan="4">
+                <!-- Mostrar el turno actual de comercial sin negrita -->
+                <div id="current-turn"><?php echo $turnos_actuales['comercial']; ?></div>
             </td>
             <td>Box 1</td>
         </tr>
         <tr>
-            <td id="box4-turn"></td>
+            <td id="box1-turn"><?php echo $turnos_actuales['veterinaria'][1]; ?></td>
+        </tr>
+        <tr>
             <td>Box 2</td>
         </tr>
         <tr>
-            <td></td>
-            <td>Box 3</td>
+            <td id="box2-turn"><?php echo $turnos_actuales['veterinaria'][2]; ?></td>
         </tr>
         <tr>
             <th colspan="2">Turnos siguientes</th>
         </tr>
         <tr>
             <td colspan="2">
-                <div id="next-turns"></div>
+                <div id="next-turns">
+                    <?php
+                    // Mostrar los turnos siguientes sin los paréntesis de box
+                    foreach ($turnos_siguientes as $turno) {
+                        echo "<p>{$turno['nombre_turno']}</p>";
+                    }
+                    ?>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <div id="box3-turns">
+                    <?php
+                    // Mostrar los turnos del box 3 sin los paréntesis de box
+                    foreach ($turnos_actuales['veterinaria'] as $numero_box => $nombre_turno) {
+                        if ($numero_box > 2) {
+                            echo "<p>{$nombre_turno}</p>";
+                        }
+                    }
+                    ?>
+                </div>
             </td>
         </tr>
     </table>
     <script>
-        // Agrega aquí tu JavaScript para actualizar el visor automáticamente cada cierto tiempo
-        function updateVisor() {
-    // Realiza una petición AJAX al archivo PHP para obtener los datos de los turnos
-    // y actualiza el visor con los datos recibidos
-    var xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState === XMLHttpRequest.DONE) {
-            if (xhr.status === 200) {
-                var data = JSON.parse(xhr.responseText);
-                updateTurnosActuales(data.actuales);
-                updateTurnosSiguientes(data.siguientes);
-            }
-        }
-    };
-    xhr.open("GET", "visor_turnos.php", true);
-    xhr.send();
-}
-
-function updateTurnosActuales(turnosActuales) {
-    var currentTurnComercial = document.getElementById("current-turn");
-    currentTurnComercial.innerHTML = "<div class='current-turn'>" + turnosActuales.comercial + "</div>";
-
-    var box1Turn = document.getElementById("box1-turn");
-    box1Turn.textContent = turnosActuales.veterinaria[1] || "Sin turno";
-
-    var box2Turn = document.getElementById("box2-turn");
-    box2Turn.textContent = turnosActuales.veterinaria[2] || "Sin turno";
-
-    var box3Turn = document.getElementById("box3-turn");
-    box3Turn.textContent = turnosActuales.veterinaria[3] || "Sin turno";
-}
-
-function updateTurnosSiguientes(turnosSiguientes) {
-    var nextTurns = document.getElementById("next-turns");
-    nextTurns.innerHTML = "<h2>Turnos siguientes</h2>";
-
-    for (var i = 0; i < turnosSiguientes.length; i++) {
-        nextTurns.innerHTML += "<p>" + turnosSiguientes[i] + "</p>";
-    }
-}
-
-// Actualizar el visor cada 5 segundos
-setInterval(updateVisor, 5000);
-
+        // Aquí vendría el código JavaScript que actualiza los datos del visor y los muestra en pantalla
     </script>
 </body>
 </html>
