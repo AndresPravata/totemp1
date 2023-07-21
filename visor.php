@@ -11,64 +11,92 @@ if ($conn->connect_error) {
 }
 date_default_timezone_set("America/Argentina/Buenos_Aires");
 
-// Obtener los datos de la tabla turnos ordenados por estado y nombre_turno
+// Obtener los datos de la tabla turnos ordenados por estado y nombre_turno, excluyendo los turnos con estado 'finalizado'
 $sql = "SELECT nombre_turno, numero_box, estado FROM turnos WHERE estado <> 'finalizado' ORDER BY estado, nombre_turno";
 $result = $conn->query($sql);
 
-$currentTurns = array();
-$nextTurns = array();
-$box1Turn = null;
-$box2Turn = null;
-$box3Turn = null;
+// Lógica para separar los turnos actuales y siguientes por box
+$turnos_actuales = array('comercial' => '', 'veterinaria' => array());
+$turnos_siguientes = array();
 
 while ($row = $result->fetch_assoc()) {
-    if ($row['estado'] === 'actual') {
-        $currentTurns[] = $row;
-        if ($row['numero_box'] == 1) {
-            $box1Turn = $row;
-        } elseif ($row['numero_box'] == 2) {
-            $box2Turn = $row;
-        } elseif ($row['numero_box'] == 3) {
-            $box3Turn = $row;
-        }
+    $nombre_turno = $row["nombre_turno"];
+    $numero_box = $row["numero_box"];
+    $estado = $row["estado"];
+    if ($numero_box == 4 && $estado != 'espera') {
+        $turnos_actuales['comercial'] = $nombre_turno;
     } else {
-        $nextTurns[] = $row;
-    }
-}
-
-// Verificar si no hay un turno actual en el Box 1
-if ($box1Turn === null) {
-    foreach ($nextTurns as $index => $turn) {
-        if ($turn['estado'] === 'espera' && $turn['numero_box'] == 1) {
-            $box1Turn = $turn;
-            $box1Turn['estado'] = 'actual';
-            unset($nextTurns[$index]);
-
-            // Actualizar el turno en la base de datos
-            $sql = "UPDATE turnos SET estado = 'actual', numero_box = 1 WHERE nombre_turno = '{$box1Turn['nombre_turno']}'";
-            $conn->query($sql);
-
-            break;
+        if ($estado == 'espera') {
+            $turnos_siguientes[] = array("nombre_turno" => $nombre_turno, "numero_box" => $numero_box);
+        } else {
+            $turnos_actuales['veterinaria'][$numero_box] = $nombre_turno;
         }
     }
 }
 
-// Verificar si no hay un turno actual en el Box 2
-if ($box2Turn === null) {
-    foreach ($nextTurns as $index => $turn) {
-        if ($turn['estado'] === 'espera' && $turn['numero_box'] == 2) {
-            $box2Turn = $turn;
-            $box2Turn['estado'] = 'actual';
-            unset($nextTurns[$index]);
+// Agregar los turnos comerciales con estado 'espera' en la sección de 'Turnos siguientes'
+$sql_espera_comercial = "SELECT nombre_turno FROM turnos WHERE estado = 'espera' AND numero_box = 4 ORDER BY nombre_turno";
+$result_espera_comercial = $conn->query($sql_espera_comercial);
 
-            // Actualizar el turno en la base de datos
-            $sql = "UPDATE turnos SET estado = 'actual', numero_box = 2 WHERE nombre_turno = '{$box2Turn['nombre_turno']}'";
-            $conn->query($sql);
+while ($row_espera_comercial = $result_espera_comercial->fetch_assoc()) {
+    $nombre_turno_comercial_espera = $row_espera_comercial["nombre_turno"];
+    $turno_existente = false;
 
+    // Verificar si el turno ya existe en $turnos_siguientes
+    foreach ($turnos_siguientes as $turno) {
+        if ($turno['nombre_turno'] == $nombre_turno_comercial_espera && $turno['numero_box'] == 4) {
+            $turno_existente = true;
             break;
         }
     }
+
+    if (!$turno_existente) {
+        $turnos_siguientes[] = array("nombre_turno" => $nombre_turno_comercial_espera, "numero_box" => 4);
+    }
 }
+
+// Ordenar los turnos en espera por orden de llegada
+usort($turnos_siguientes, function ($a, $b) {
+    return strcmp($a['nombre_turno'], $b['nombre_turno']);
+});
+function actualizarTurnos($conn)
+{
+    // Obtener el turno actual de Comercial (box 4)
+    $sql_comercial_actual = "SELECT nombre_turno FROM turnos WHERE estado = 'actual' AND numero_box = 4";
+    $result_comercial_actual = $conn->query($sql_comercial_actual);
+    $turno_actual_comercial = $result_comercial_actual->fetch_assoc();
+
+    if ($turno_actual_comercial) {
+        $nombre_turno_actual = $turno_actual_comercial['nombre_turno'];
+        
+        // Cambiar el estado del turno actual de Comercial a 'finalizado'
+        $sql_finalizar_turno_actual = "UPDATE turnos SET estado = 'finalizado' WHERE nombre_turno = '$nombre_turno_actual'";
+        $conn->query($sql_finalizar_turno_actual);
+    }
+
+    // Buscar el siguiente turno en espera para Comercial (box 4)
+    $sql_comercial_siguiente = "SELECT nombre_turno FROM turnos WHERE estado = 'espera' AND numero_box = 4 ORDER BY id ASC LIMIT 1";
+    $result_comercial_siguiente = $conn->query($sql_comercial_siguiente);
+    $turno_siguiente_comercial = $result_comercial_siguiente->fetch_assoc();
+
+    if ($turno_siguiente_comercial) {
+        $nombre_turno_siguiente = $turno_siguiente_comercial['nombre_turno'];
+
+        // Cambiar el estado del siguiente turno en espera a 'actual'
+        $sql_actualizar_turno_siguiente = "UPDATE turnos SET estado = 'actual' WHERE nombre_turno = '$nombre_turno_siguiente'";
+        $conn->query($sql_actualizar_turno_siguiente);
+    }
+}
+// Lógica para separar los turnos actuales y siguientes por box
+$turnos_actuales = array('comercial' => '', 'veterinaria' => array());
+$turnos_siguientes = array();
+
+while ($row = $result->fetch_assoc()) {
+    // Resto del código anterior...
+}
+
+// Llamamos a la función para actualizar los turnos
+actualizarTurnos($conn);
 
 $conn->close();
 ?>
