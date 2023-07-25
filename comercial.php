@@ -11,12 +11,12 @@ if ($conn->connect_error) {
 }
 date_default_timezone_set("America/Argentina/Buenos_Aires");
 
-// Función para marcar el turno del Box 2 como finalizado
+// Función para marcar el turno del Box 4 como finalizado
 function marcarTurnoFinalizado() {
     global $conn;
     
-    // Obtener el turno actual del Box 2
-    $sql = "SELECT nombre_turno FROM turnos WHERE numero_box = 2 AND estado = 'actual' LIMIT 1";
+    // Obtener el turno actual del Box 4 Comercial
+    $sql = "SELECT nombre_turno FROM turnos WHERE numero_box = 4 AND estado = 'actual' LIMIT 1";
     $result = $conn->query($sql);
     
     if ($result->num_rows > 0) {
@@ -47,21 +47,21 @@ $conn->close();
 <body>
     <h1>Visor de Turnos</h1>
 
-    <div id="box2-current-turn"></div>
+    <div id="box4-current-turn"></div>
     <form method="post">
         <button type="submit" name="marcar_finalizado">Turno Finalizado</button>
     </form>
 
     <script>
-        var box2CurrentTurn = <?php echo json_encode($box2CurrentTurn); ?>;
+        var box4CurrentTurn = <?php echo json_encode($box4CurrentTurn); ?>;
 
         function updateVisor() {
-            // Limpiar el turno actual del box 2
-            document.getElementById("box2-current-turn").innerText = "";
+            // Limpiar el turno actual del box 4
+            document.getElementById("box4-current-turn").innerText = "";
 
-            // Mostrar el turno actual del box 2
-            if (box1CurrentTurn) {
-                document.getElementById("box2-current-turn").innerText = box2CurrentTurn.nombre_turno;
+            // Mostrar el turno actual del box 4
+            if (box4CurrentTurn) {
+                document.getElementById("box4-current-turn").innerText = box4CurrentTurn.nombre_turno;
             }
         }
 
@@ -70,7 +70,7 @@ $conn->close();
             xmlhttp.onreadystatechange = function() {
                 if (this.readyState == 4 && this.status == 200) {
                     var response = JSON.parse(this.responseText);
-                    box2CurrentTurn = response.box2CurrentTurn;
+                    box4CurrentTurn = response.box4CurrentTurn;
                     updateVisor();
                 }
             };

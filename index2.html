@@ -62,6 +62,26 @@
 										   }); 
 										});
 									});
+									$(document).ready(function(){
+			$('#btnImprimirC').click(function(){
+				$.ajax({
+					url: 'guardarC.php',
+					type: 'POST',
+					data: {
+						nombre_turno: 'C',
+						fecha_hora_inicio: new Date().toISOString(),
+						numero_box: 4
+					},
+					success: function(response){
+						if(response == 1){
+							alert('Imprimiendo....');
+						}else{
+							alert('Error');
+						}
+					}
+				}); 
+			});
+		});
 								</script>
 							</article>
 							
@@ -98,6 +118,7 @@
   <input type="hidden" id="nombre_turno" name="nombre_turno" value="">
   <input type="hidden" id="fecha_hora_inicio" name="fecha_hora_inicio" value="">
   <input type="hidden" id="numero_box" name="numero_box" value="">
+  
   <div class="disponibilidad">
     <!-- Contenido de la disponibilidad -->
   </div>
@@ -148,21 +169,23 @@
 <script src="jquery-3.1.1.min.js"></script>
 <script>
 	$(document).ready(function(){
-										$('#btnImprimirA').click(function(){
-										   $.ajax({
-											   url: 'ticketA.php',
-											   type: 'POST',
-											   success: function(response){
-												   if(response==1){
-													   alert('Imprimiendo....');
-												   }else{
-													   alert('Error');
-												   }
-											   }
-										   }); 
-										});
-									});
-  $(document).ready(function() {
+    $('#btnImprimirA').click(function(){
+       $.ajax({
+           url: 'ticketA.php',
+           type: 'POST',
+           success: function(response){
+               if(response==1){
+                   alert('Imprimiendo....');
+               }else{
+                   alert('Error');
+               }
+           }
+       }); 
+    });
+});
+$(document).ready(function() {
+    var numeroTurno = null; // Variable para almacenar el número del turno
+
     $('.veterinario').click(function() {
       $('.veterinario').removeClass('seleccionado');
       $(this).addClass('seleccionado');
@@ -173,24 +196,48 @@
     $('#btnImprimirA').click(function() {
       var veterinarioSeleccionado = $('.veterinario.seleccionado');
       if (veterinarioSeleccionado.length > 0) {
-        var veterinarioIndex = veterinarioSeleccionado.index() + 1;
-        var nombreTurno = 'A' + ($('#formularioTurno').find('.nombreTurno').length + 1).toString().padStart(2, '0');
-        var fechaHoraInicio = new Date().toISOString();
-        var numeroBox = veterinarioIndex;
+        if (numeroTurno !== null) {
+          var nombreTurno = 'A' + numeroTurno.toString().padStart(2, '0');
+          var fechaHoraInicio = new Date().toISOString();
+          var numeroBox = veterinarioSeleccionado.index() + 1;
+          var estado = 'espera';
+          $('#nombre_turno').val(nombreTurno);
+          $('#fecha_hora_inicio').val(fechaHoraInicio);
+          $('#numero_box').val(numeroBox);
+		  
 
-        $('#nombre_turno').val(nombreTurno);
-        $('#fecha_hora_inicio').val(fechaHoraInicio);
-        $('#numero_box').val(numeroBox);
+          // Incrementar el número del turno en la memoria
+          numeroTurno++;
 
-        $('#formularioTurno').submit();
+          $('#formularioTurno').submit();
+        } else {
+          alert('El número del turno no ha sido obtenido correctamente.');
+        }
       } else {
         alert('Por favor, seleccione un veterinario antes de imprimir el turno.');
       }
     });
+
+    // Obtener el número del turno del archivo "turno.txt"
+    $.get("turno.txt", function(data) {
+      var numero = parseInt(data);
+      if (!isNaN(numero)) {
+        numeroTurno = numero + 0; // Incrementar el número del turno en 1
+      } else {
+        alert('El archivo "turno.txt" no contiene un número válido.');
+      }
+    }).fail(function() {
+      alert('Error al obtener el número del archivo "turno.txt".');
+    });
   });
 </script>
+  
+  
+  
 
 						   </article>
+
+						  
 						<!-- About -->
 						<article id="about" style="max-width: 18200px;" style="min-width: 11200px;"class="active">
 							<h2 class="major">Peluquería</h2>
@@ -206,71 +253,65 @@
 
 								</div>
 								<div class="form-row">
-								  <button type="button" onclick="addDigit('0')">0</button>
-								  <button type="button" onclick="addDigit('1')">1</button>
-								  <button type="button" onclick="addDigit('2')">2</button>
-								  <button type="button" onclick="addDigit('3')">3</button>
-								  <button type="button" onclick="addDigit('4')">4</button>
-								  <button type="button" onclick="addDigit('5')">5</button>
-								  <button type="button" onclick="addDigit('6')">6</button>
-								  <button type="button" onclick="addDigit('7')">7</button>
-								  <button type="button" onclick="addDigit('8')">8</button>
-								  <button type="button" onclick="addDigit('9')">9</button>
-								</div>
-								<button type="button" onclick="sendWhatsAppMessage()">Enviar</button>
-							  </form>
-							</div>
+									<button type="button" onclick="addDigit('1')">1</button>
+									<button type="button" onclick="addDigit('2')">2</button>
+									<button type="button" onclick="addDigit('3')">3</button>
+								  </div>
+								  <div class="form-row">
+									<button type="button" onclick="addDigit('4')">4</button>
+									<button type="button" onclick="addDigit('5')">5</button>
+									<button type="button" onclick="addDigit('6')">6</button>
+								  </div>
+								  <div class="form-row">
+									<button type="button" onclick="addDigit('7')">7</button>
+									<button type="button" onclick="addDigit('8')">8</button>
+									<button type="button" onclick="addDigit('9')">9</button>
+								  </div>
+								  <div class="form-row">
+									<button type="button" onclick="addDigit('0')">0</button>
+									<button type="button" onclick="deleteLastDigit()">Borrar</button>
+								  </div>
+								  <button type="button" onclick="sendWhatsAppMessage()">Enviar</button>
+								</form>
+							  </div>
 							<!-- Estilo CSS para el botón "Enviar" y la botonera -->
 							<style>
-							  #form-container button[type="button"] {
-								background-color: transparent;
-								border: 1px solid black;
-								color: black;
-								padding: 30px 30px;
-								text-align: center;
-								text-decoration: none;
-								display: flex;
-								justify-content: center;
-								align-items: center;
-								font-size: 24px;
-								margin: 20px auto;
-								cursor: pointer;
-								line-height: 1;
-								width: 100%;
-								max-width: 400px;
-							  }
-						  
-							  .form-row {
-								display: flex;
-								align-items: center;
-								justify-content: center;
-								margin-bottom: 10px;
-							  }
-						  
-							  .form-row input[type="tel"] {
-    width: 100%;
-    font-size: 24px;
-    padding: 10px;
-    border: 1px solid black;
-}
+							 #form-container button[type="button"] {
+      background-color: transparent;
+      border: 1px solid black;
+      color: black;
+      padding: 30px 30px;
+      text-align: center;
+      text-decoration: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 24px;
+      margin: 5px; /* Ajusta el margen entre los botones */
+      cursor: pointer;
+      line-height: 1;
+      width: 100%;
+      max-width: 120px;
+    }
 
-						  
-.form-row button[type="button"] {
-  background-color: transparent;
-  border: 1px solid black;
-  color: black;
-  padding: 5px 5px; /* Modificar aquí para ajustar el tamaño de los botones */
-  text-align: center;
-  text-decoration: none;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 6px; /* Modificar aquí para ajustar el tamaño de la fuente */
-  margin: 0 5px;
-  cursor: pointer;
-  line-height: 1;
-  max-width: 5px; /* Modificar aquí para ajustar el ancho máximo de los botones */
-}
+    .form-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 5px;
+    }
+
+    .form-row input[type="tel"] {
+      width: 100%;
+      font-size: 20px;
+      padding: 8px;
+      border: 1px solid black;
+    }
+
+    /* Estilo específico para el botón "Borrar" */
+    .form-row button[type="button"]:last-child {
+      max-width: 120px;
+    }
 							</style>
 							<!-- Script para enviar el mensaje de WhatsApp -->
 							<script>
@@ -295,9 +336,6 @@ function sendWhatsAppMessage() {
 }
 </script>
 </article>
-
-
-
 
 
 

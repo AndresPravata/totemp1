@@ -15,20 +15,12 @@ $printer->setJustification(Printer::JUSTIFY_CENTER);
     Intentaremos cargar e imprimir
     el logo
 */
-try {
-    $logo = EscposImage::load("prueba.jpg", false);
-    $printer->bitImage($logo);
-} catch (Exception $e) {
-    // No hacemos nada si hay error
-}
-
-
 /*
     Ahora vamos a imprimir un encabezado
 */
 $printer->setEmphasis(true); // Resalta el texto
 $printer->setTextSize(1, 1); // Aumenta el tamaño del texto a 2 veces el tamaño normal
-$printer->text("\n" . "Veterinaria Luffi" . "\n");
+$printer->text("Veterinaria Luffi" . "\n");
 $printer->setEmphasis(false); // Desactiva el resaltado del texto
 $printer->setTextSize(1, 1); // Restablece el tamaño del texto a su valor predeterminado
 
@@ -39,22 +31,25 @@ $printer->text("\n");
 date_default_timezone_set("America/Argentina/Buenos_Aires");
 $printer->text(date("Y-m-d H:i:s") . "\n");
 $printer->text("-----------------------------" . "\n");
-
+// Espacios vacíos debajo del número de turno
+$printer->text("\n\n");
 # Obtener el último turno impreso
 $turno_actual = obtener_turno_actual();
 
 # Incrementar el turno actual
 $turno_siguiente = incrementar_turno($turno_actual);
+
 $printer->text("Turno N°:\n");
 $printer->setEmphasis(true); // Resalta el texto
-$printer->setTextSize(3, 3); // Aumenta el tamaño del texto a 2 veces el tamaño normal
+$printer->setTextSize(4, 4); // Aumenta el tamaño del texto a 2 veces el tamaño normal
 # Imprimir el turno siguiente
 $printer->text("C" . $turno_siguiente . "\n");
 $printer->setEmphasis(false); // Desactiva el resaltado del texto
 $printer->setTextSize(1, 1); // Restablece el tamaño del texto a su valor predeterminado
 # Actualizar el turno actual en el archivo
 file_put_contents("turnoC.txt", $turno_siguiente);
-
+// Espacios vacíos debajo del número de turno
+$printer->text("\n\n\n\n\n\n\n\n\n\n");
 /*
     Ahora vamos a imprimir los
     productos

@@ -54,7 +54,8 @@ $printer->setEmphasis(false); // Desactiva el resaltado del texto
 $printer->setTextSize(1, 1); // Restablece el tamaño del texto a su valor predeterminado
 # Actualizar el turno actual en el archivo
 file_put_contents("turno.txt", $turno_siguiente);
-
+// Espacios vacíos debajo del número de turno
+$printer->text("\n\n\n\n\n\n\n\n\n\n");
 /*
     Ahora vamos a imprimir los
     productos

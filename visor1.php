@@ -59,6 +59,34 @@ while ($row_espera_comercial = $result_espera_comercial->fetch_assoc()) {
 usort($turnos_siguientes, function ($a, $b) {
     return strcmp($a['nombre_turno'], $b['nombre_turno']);
 });
+
+// Función para buscar y asignar un turno en 'turnos actuales' si está vacío
+function asignarTurnoActual(&$turnos_actuales, &$turnos_siguientes, $numero_box, $conn) {
+    $turno_asignado = false;
+    foreach ($turnos_siguientes as $index => $turno) {
+        if ($turno['numero_box'] == $numero_box) {
+            // Actualizar el estado del turno en la base de datos de 'espera' a 'actual'
+            $nombre_turno = $turno['nombre_turno'];
+            $sql_update_estado = "UPDATE turnos SET estado = 'actual' WHERE nombre_turno = '$nombre_turno' AND estado = 'espera' AND numero_box = $numero_box LIMIT 1";
+            $conn->query($sql_update_estado);
+
+            // Cambiar el estado del turno en 'turnos_siguientes' a 'actual'
+            $turnos_siguientes[$index]['estado'] = 'actual';
+
+            // Asignar el turno a 'turnos_actuales'
+            $turnos_actuales['veterinaria'][$numero_box] = $turno['nombre_turno'];
+
+            // Eliminar el turno de 'turnos_siguientes'
+            unset($turnos_siguientes[$index]);
+
+            $turno_asignado = true;
+            break;
+        }
+    }
+
+    return $turno_asignado;
+}
+
 // Verificar si hay un turno actual para comercial y si no lo hay, se establecerá como vacío
 if (empty($turnos_actuales['comercial'])) {
     $turnos_actuales['comercial'] = '';
@@ -72,11 +100,18 @@ if (empty($turnos_siguientes)) {
 // Verificar si hay turnos en Box 1 y Box 2 de veterinaria y si no los hay, se establecerán como vacíos
 if (empty($turnos_actuales['veterinaria'][1])) {
     $turnos_actuales['veterinaria'][1] = '';
+
+    // Si no hay turno actual en Box 1, intentar asignar uno desde 'turnos_siguientes'
+    asignarTurnoActual($turnos_actuales, $turnos_siguientes, 1, $conn);
 }
 
 if (empty($turnos_actuales['veterinaria'][2])) {
     $turnos_actuales['veterinaria'][2] = '';
+
+    // Si no hay turno actual en Box 2, intentar asignar uno desde 'turnos_siguientes'
+    asignarTurnoActual($turnos_actuales, $turnos_siguientes, 2, $conn);
 }
+
 // Verificar si hay un turno actual para comercial y si no lo hay, se establecerá como vacío
 if (empty($turnos_actuales['comercial'])) {
     $turnos_actuales['comercial'] = '';
@@ -106,72 +141,142 @@ if (empty($turnos_siguientes)) {
         // Actualizar el array $turnos_actuales con el nuevo turno asignado
         $turnos_actuales['veterinaria'][$box_libre] = $primer_turno_espera['nombre_turno'];
     }
+
+    // Buscar y asignar turnos de espera a sus respectivos box en 'turnos actuales' si están vacíos
+    if (empty($turnos_actuales['veterinaria'][1])) {
+        asignarTurnoActual($turnos_actuales, $turnos_siguientes, 1, $conn);
+    }
+    if (empty($turnos_actuales['veterinaria'][2])) {
+        asignarTurnoActual($turnos_actuales, $turnos_siguientes, 2, $conn);
+    }
+}
+// Verificar si hay un turno actual para comercial y si no lo hay, se establecerá como vacío
+if (empty($turnos_actuales['comercial'])) {
+    $turnos_actuales['comercial'] = '';
+
+    // Si no hay turno actual en Box 4 (comercial), intentar asignar uno desde 'turnos_siguientes'
+    asignarTurnoActual($turnos_actuales, $turnos_siguientes, 4, $conn);
+}
+
+// Verificar si hay turnos de espera para comercial (Box 4) y si no los hay, se establecerá el array de turnos_siguientes como vacío
+if (empty($turnos_siguientes)) {
+    $turnos_siguientes = array();
+} else {
+    // Obtener el primer turno de espera de comercial (Box 4)
+    $primer_turno_espera_comercial = reset($turnos_siguientes);
+    
+    // Verificar si el primer turno de espera tiene asignado el Box 4
+    if ($primer_turno_espera_comercial['numero_box'] == 4) {
+        // Verificar si el Box 4 está libre (vacío)
+        if (empty($turnos_actuales['comercial'])) {
+            // Cambiar el estado y el número de Box del primer turno de espera (Box 4)
+            $sql_update_comercial = "UPDATE turnos SET estado = 'actual', numero_box = 4 WHERE nombre_turno = '{$primer_turno_espera_comercial['nombre_turno']}' AND estado = 'espera' AND numero_box = 4 LIMIT 1";
+            $conn->query($sql_update_comercial);
+            
+            // Actualizar el array $turnos_actuales con el nuevo turno asignado (Box 4)
+            $turnos_actuales['comercial'] = $primer_turno_espera_comercial['nombre_turno'];
+            
+            // Eliminar el turno de espera de $turnos_siguientes
+            unset($turnos_siguientes[key($turnos_siguientes)]);
+        }
+    }
 }
 
 $conn->close();
 ?>
+
 <!DOCTYPE html>
 <html>
 <head>
+<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
     <title>Visor de Turnos</title>
+    
     <style>
-       
-    table {
-        width: 100%;
-        border-collapse: collapse;
-    }
+  /* Estilos para la tabla */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
 
-    th, td {
-        border: 1px solid black;
-        padding: 8px;
-        text-align: center;
-    }
+th, tr, td {
+    border: 1px solid black;
+    padding: 8px;
+    text-align: center;
+    
+    
+}
 
-    th {
-        background-color: lightgray;
-    }
+/* Estilo específico para el turno actual de comercial */
+#current-turn {
+    font-size: 50px;
+    font-weight: bold; /* Texto en negrita */
+    display: flex;
+    align-items: center; /* Centrar verticalmente */
+    justify-content: center; /* Centrar horizontalmente */
+}
+#current-turn {
+    vertical-align: middle;
+}
+/* Estilos para los textos en las celdas de Box 3 de comercial */
+#box3-turns p {
+    text-align: center;
+    font-weight: bold; /* Texto en negrita */
+    display: flex;
+    align-items: center; /* Centrar verticalmente */
+    justify-content: center; /* Centrar horizontalmente */
+}
 
-    .current-turn {
-        font-size: 20px;
-        font-weight: bold;
-    }
+/* Estilo para los turnos siguientes */
+#next-turns p {
+    font-size: 30px; /* Tamaño de fuente personalizado */
+    font-weight: bold; /* Texto en negrita */
+}
+/* Estilo para los turnos siguientes */
+#next-turns p {
+    font-size: 30px; /* Tamaño de fuente personalizado */
+    font-weight: bold; /* Texto en negrita */
+}
 
-    #next-turns, #box3-turns {
-        display: flex;
-        flex-direction: column;
-    }
+/* Estilo para los turnos en Box 1 y Box 2 de veterinaria */
+#box1-turn, #box2-turn {
+    font-weight: bold; /* Texto en negrita */
+    font-size: 40px;
+
+}
 
     </style>
 </head>
 <body>
-    <h1>Visor de Turnos</h1>
+    <h1 style="text-align: center";>Visor de Turnos</h1>
 
-    <table>
+    <table style="text-align: center";>
         <tr>
-            <th>Comercial</th>
-            <th>Veterinaria</th>
+            <th style="text-align: center";>Comercial</th>
+            <th style="text-align: center";>Veterinaria</th>
         </tr>
         <tr>
-            <th colspan="2">Turnos actuales</th>
+            <th style="text-align: center"; colspan="2">Turnos actuales</th>
         </tr>
         <tr>
-            <td rowspan="4">
-                <!-- Mostrar el turno actual de comercial sin negrita -->
-                <div id="current-turn"><?php echo $turnos_actuales['comercial']; ?></div>
-            </td>
-            <td>Box 1</td>
+        <td rowspan="4" style="vertical-align: middle; text-align: center;">
+    <!-- Mostrar el turno actual de comercial en el centro -->
+    <div id="current-turn"><strong><?php echo $turnos_actuales['comercial']; ?></strong></div>
+</td>
+
+            <td style="text-align: center";>Box 1</td>
         </tr>
         <tr>
             <td id="box1-turn"><?php echo $turnos_actuales['veterinaria'][1]; ?></td>
         </tr>
         <tr>
-            <td>Box 2</td>
+            <td style="text-align: center";>Box 2</td>
         </tr>
         <tr>
             <td id="box2-turn"><?php echo $turnos_actuales['veterinaria'][2]; ?></td>
         </tr>
         <tr>
-            <th colspan="2">Turnos siguientes</th>
+            <th style="text-align: center"; colspan="2">Turnos siguientes</th>
         </tr>
         <tr>
             <td colspan="2">
@@ -208,7 +313,7 @@ $conn->close();
     }
 
     // Actualizar la página cada 5 segundos
-    setTimeout(actualizarPagina, 5000);
+    setTimeout(actualizarPagina, 1000);
     </script>
 </body>
 </html>
