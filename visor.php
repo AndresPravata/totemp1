@@ -12,7 +12,7 @@ if ($conn->connect_error) {
 date_default_timezone_set("America/Argentina/Buenos_Aires");
 
 // Obtener los datos de la tabla turnos ordenados por estado y nombre_turno, excluyendo los turnos con estado 'finalizado'
-$sql = "SELECT nombre_turno, numero_box, estado FROM turnos WHERE estado <> 'finalizado' ORDER BY estado, nombre_turno";
+$sql = "SELECT nombre_turno, numero_box, estado FROM turnos WHERE estado != 'finalizado' ORDER BY estado, nombre_turno";
 $result = $conn->query($sql);
 
 // Lógica para separar los turnos actuales y siguientes por box
@@ -59,44 +59,150 @@ while ($row_espera_comercial = $result_espera_comercial->fetch_assoc()) {
 usort($turnos_siguientes, function ($a, $b) {
     return strcmp($a['nombre_turno'], $b['nombre_turno']);
 });
-function actualizarTurnos($conn)
-{
-    // Obtener el turno actual de Comercial (box 4)
-    $sql_comercial_actual = "SELECT nombre_turno FROM turnos WHERE estado = 'actual' AND numero_box = 4";
-    $result_comercial_actual = $conn->query($sql_comercial_actual);
-    $turno_actual_comercial = $result_comercial_actual->fetch_assoc();
 
-    if ($turno_actual_comercial) {
-        $nombre_turno_actual = $turno_actual_comercial['nombre_turno'];
-        
-        // Cambiar el estado del turno actual de Comercial a 'finalizado'
-        $sql_finalizar_turno_actual = "UPDATE turnos SET estado = 'finalizado' WHERE nombre_turno = '$nombre_turno_actual'";
-        $conn->query($sql_finalizar_turno_actual);
+// Función para buscar y asignar un turno en 'turnos actuales' si está vacío
+function asignarTurnoActual(&$turnos_actuales, &$turnos_siguientes, $numero_box, $conn) {
+    $turno_asignado = false;
+    foreach ($turnos_siguientes as $index => $turno) {
+        if ($turno['numero_box'] == $numero_box) {
+            // Verificar si los boxes 1 y 2 están ocupados
+            $box1_ocupado = !empty($turnos_actuales['veterinaria'][1]);
+            $box2_ocupado = !empty($turnos_actuales['veterinaria'][2]);
+
+            // Asignar el turno a 'espera' si ambos boxes 1 y 2 están ocupados
+            if ($numero_box == 3 && $box1_ocupado && $box2_ocupado) {
+                $conn->query("UPDATE turnos SET estado = 'espera' WHERE nombre_turno = '{$turno['nombre_turno']}' AND estado = 'actual' AND numero_box = 3 LIMIT 1");
+                // Cambiar el estado del turno en 'turnos_siguientes' a 'espera'
+                $turnos_siguientes[$index]['estado'] = 'espera';
+                // No asignar el turno a 'turnos_actuales' en este caso
+            } else {
+                // Actualizar el estado del turno en la base de datos de 'espera' a 'actual'
+                $nombre_turno = $turno['nombre_turno'];
+                $sql_update_estado = "UPDATE turnos SET estado = 'actual' WHERE nombre_turno = '$nombre_turno' AND estado = 'espera' AND numero_box = $numero_box LIMIT 1";
+                $conn->query($sql_update_estado);
+
+                // Cambiar el estado del turno en 'turnos_siguientes' a 'actual'
+                $turnos_siguientes[$index]['estado'] = 'actual';
+
+                // Asignar el turno a 'turnos_actuales'
+                $turnos_actuales['veterinaria'][$numero_box] = $turno['nombre_turno'];
+            }
+
+            // Eliminar el turno de 'turnos_siguientes'
+            unset($turnos_siguientes[$index]);
+
+            $turno_asignado = true;
+            break;
+        }
     }
 
-    // Buscar el siguiente turno en espera para Comercial (box 4)
-    $sql_comercial_siguiente = "SELECT nombre_turno FROM turnos WHERE estado = 'espera' AND numero_box = 4 ORDER BY id ASC LIMIT 1";
-    $result_comercial_siguiente = $conn->query($sql_comercial_siguiente);
-    $turno_siguiente_comercial = $result_comercial_siguiente->fetch_assoc();
+    return $turno_asignado;
+}
 
-    if ($turno_siguiente_comercial) {
-        $nombre_turno_siguiente = $turno_siguiente_comercial['nombre_turno'];
+// Verificar si hay un turno actual para comercial y si no lo hay, se establecerá como vacío
+if (empty($turnos_actuales['comercial'])) {
+    $turnos_actuales['comercial'] = '';
+}
 
-        // Cambiar el estado del siguiente turno en espera a 'actual'
-        $sql_actualizar_turno_siguiente = "UPDATE turnos SET estado = 'actual' WHERE nombre_turno = '$nombre_turno_siguiente'";
-        $conn->query($sql_actualizar_turno_siguiente);
+// Verificar si hay turnos de espera para comercial (Box 4) y si no los hay, se establecerá el array de turnos_siguientes como vacío
+if (empty($turnos_siguientes)) {
+    $turnos_siguientes = array();
+}
+
+// Verificar si hay turnos en Box 1 y Box 2 de veterinaria y si no los hay, se establecerán como vacíos
+if (empty($turnos_actuales['veterinaria'][1])) {
+    $turnos_actuales['veterinaria'][1] = '';
+
+    // Si no hay turno actual en Box 1, intentar asignar uno desde 'turnos_siguientes'
+    asignarTurnoActual($turnos_actuales, $turnos_siguientes, 1, $conn);
+}
+
+if (empty($turnos_actuales['veterinaria'][2])) {
+    $turnos_actuales['veterinaria'][2] = '';
+
+    // Si no hay turno actual en Box 2, intentar asignar uno desde 'turnos_siguientes'
+    asignarTurnoActual($turnos_actuales, $turnos_siguientes, 2, $conn);
+}
+
+// Verificar si hay un turno actual para comercial y si no lo hay, se establecerá como vacío
+if (empty($turnos_actuales['comercial'])) {
+    $turnos_actuales['comercial'] = '';
+}
+
+// Verificar si hay turnos de espera para comercial (Box 4) y si no los hay, se establecerá el array de turnos_siguientes como vacío
+if (empty($turnos_siguientes)) {
+    $turnos_siguientes = array();
+} else {
+    // Obtener el primer turno de espera de veterinaria
+    $primer_turno_espera = reset($turnos_siguientes);
+
+    // Verificar si el primer turno de espera tiene asignado el Box 3
+if ($primer_turno_espera['numero_box'] == 3) {
+    // Buscar un Box libre (Box 1 o Box 2) para asignar el turno
+    $box_libre = 1;
+    if (!empty($turnos_actuales['veterinaria'][1]) && empty($turnos_actuales['veterinaria'][2])) {
+        $box_libre = 2;
+    } elseif (!empty($turnos_actuales['veterinaria'][2]) && empty($turnos_actuales['veterinaria'][1])) {
+        $box_libre = 1;
+    } elseif (empty($turnos_actuales['veterinaria'][1]) && empty($turnos_actuales['veterinaria'][2])) {
+        // Si ambos Box 1 y Box 2 están desocupados, simplemente mantenerlo en el Box 3
+        $box_libre = 3;
+    } else {
+        // Si ambos Box 1 y Box 2 están ocupados, mantenerlo en el Box 3 en estado de espera
+        $box_libre = -1;
+    }
+
+    if ($box_libre != -1) {
+        // Cambiar el estado y el número de Box del primer turno de espera
+        $sql_update = "UPDATE turnos SET estado = 'actual', numero_box = $box_libre WHERE nombre_turno = '{$primer_turno_espera['nombre_turno']}' AND estado = 'espera' AND numero_box = 3 LIMIT 1";
+        $conn->query($sql_update);
+        // Si se actualizó correctamente, eliminar el turno de espera de $turnos_siguientes
+        unset($turnos_siguientes[key($turnos_siguientes)]);
+
+        // Actualizar el array $turnos_actuales con el nuevo turno asignado
+        $turnos_actuales['veterinaria'][$box_libre] = $primer_turno_espera['nombre_turno'];
     }
 }
-// Lógica para separar los turnos actuales y siguientes por box
-$turnos_actuales = array('comercial' => '', 'veterinaria' => array());
-$turnos_siguientes = array();
 
-while ($row = $result->fetch_assoc()) {
-    // Resto del código anterior...
+    // Buscar y asignar turnos de espera a sus respectivos box en 'turnos actuales' si están vacíos
+    if (empty($turnos_actuales['veterinaria'][1])) {
+        asignarTurnoActual($turnos_actuales, $turnos_siguientes, 1, $conn);
+    }
+    if (empty($turnos_actuales['veterinaria'][2])) {
+        asignarTurnoActual($turnos_actuales, $turnos_siguientes, 2, $conn);
+    }
+}
+// Verificar si hay un turno actual para comercial y si no lo hay, se establecerá como vacío
+if (empty($turnos_actuales['comercial'])) {
+    $turnos_actuales['comercial'] = '';
+
+    // Si no hay turno actual en Box 4 (comercial), intentar asignar uno desde 'turnos_siguientes'
+    asignarTurnoActual($turnos_actuales, $turnos_siguientes, 4, $conn);
 }
 
-// Llamamos a la función para actualizar los turnos
-actualizarTurnos($conn);
+// Verificar si hay turnos de espera para comercial (Box 4) y si no los hay, se establecerá el array de turnos_siguientes como vacío
+if (empty($turnos_siguientes)) {
+    $turnos_siguientes = array();
+} else {
+    // Obtener el primer turno de espera de comercial (Box 4)
+    $primer_turno_espera_comercial = reset($turnos_siguientes);
+    
+    // Verificar si el primer turno de espera tiene asignado el Box 4
+    if ($primer_turno_espera_comercial['numero_box'] == 4) {
+        // Verificar si el Box 4 está libre (vacío)
+        if (empty($turnos_actuales['comercial'])) {
+            // Cambiar el estado y el número de Box del primer turno de espera (Box 4)
+            $sql_update_comercial = "UPDATE turnos SET estado = 'actual', numero_box = 4 WHERE nombre_turno = '{$primer_turno_espera_comercial['nombre_turno']}' AND estado = 'espera' AND numero_box = 4 LIMIT 1";
+            $conn->query($sql_update_comercial);
+            
+            // Actualizar el array $turnos_actuales con el nuevo turno asignado (Box 4)
+            $turnos_actuales['comercial'] = $primer_turno_espera_comercial['nombre_turno'];
+            
+            // Eliminar el turno de espera de $turnos_siguientes
+            unset($turnos_siguientes[key($turnos_siguientes)]);
+        }
+    }
+}
 
 $conn->close();
 ?>
@@ -104,122 +210,132 @@ $conn->close();
 <!DOCTYPE html>
 <html>
 <head>
+<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
     <title>Visor de Turnos</title>
+    
     <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
+  /* Estilos para la tabla */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
 
-        th, td {
-            border: 1px solid black;
-            padding: 8px;
-            text-align: center;
-        }
+th, tr, td {
+    border: 1px solid black;
+    padding: 8px;
+    text-align: center;
+    
+    
+}
 
-        th {
-            background-color: lightgray;
-        }
+/* Estilo específico para el turno actual de comercial */
+#current-turn {
+    font-size: 50px;
+    font-weight: bold; /* Texto en negrita */
+    display: flex;
+    align-items: center; /* Centrar verticalmente */
+    justify-content: center; /* Centrar horizontalmente */
+}
+#current-turn {
+    vertical-align: middle;
+}
+/* Estilos para los textos en las celdas de Box 3 de comercial */
+#box3-turns p {
+    text-align: center;
+    font-weight: bold; /* Texto en negrita */
+    display: flex;
+    align-items: center; /* Centrar verticalmente */
+    justify-content: center; /* Centrar horizontalmente */
+}
 
-        .current-turn {
-            font-size: 20px;
-            font-weight: bold;
-        }
+/* Estilo para los turnos siguientes */
+#next-turns p {
+    font-size: 30px; /* Tamaño de fuente personalizado */
+    font-weight: bold; /* Texto en negrita */
+}
+/* Estilo para los turnos siguientes */
+#next-turns p {
+    font-size: 30px; /* Tamaño de fuente personalizado */
+    font-weight: bold; /* Texto en negrita */
+}
+
+/* Estilo para los turnos en Box 1 y Box 2 de veterinaria */
+#box1-turn, #box2-turn {
+    font-weight: bold; /* Texto en negrita */
+    font-size: 40px;
+
+}
+
     </style>
 </head>
 <body>
-    <h1>Visor de Turnos</h1>
+    <h1 style="text-align: center";>Visor de Turnos</h1>
 
-    <table>
+    <table style="text-align: center";>
         <tr>
-            <th>Comercial</th>
-            <th>Veterinaria</th>
+            <th style="text-align: center";>Comercial</th>
+            <th style="text-align: center";>Veterinaria</th>
         </tr>
         <tr>
-            <th colspan="2">Turnos actuales</th>
+            <th style="text-align: center"; colspan="2">Turnos actuales</th>
         </tr>
         <tr>
-            <td rowspan="4">
-                <div id="current-turn"></div>
-            </td>
-            <td>Box 1</td>
+        <td rowspan="4" style="vertical-align: middle; text-align: center;">
+    <!-- Mostrar el turno actual de comercial en el centro -->
+    <div id="current-turn"><strong><?php echo $turnos_actuales['comercial']; ?></strong></div>
+</td>
+
+            <td style="text-align: center";>Box 1</td>
         </tr>
         <tr>
-            <td id="box1-turn"><?php echo $box1Turn !== null ? $box1Turn['nombre_turno'] : ''; ?></td>
+            <td id="box1-turn"><?php echo $turnos_actuales['veterinaria'][1]; ?></td>
         </tr>
         <tr>
-            <td>Box 2</td>
+            <td style="text-align: center";>Box 2</td>
         </tr>
         <tr>
-            <td id="box2-turn"><?php echo $box2Turn !== null ? $box2Turn['nombre_turno'] : ''; ?></td>
+            <td id="box2-turn"><?php echo $turnos_actuales['veterinaria'][2]; ?></td>
         </tr>
         <tr>
-            <th colspan="2">Turnos siguientes</th>
+            <th style="text-align: center"; colspan="2">Turnos siguientes</th>
         </tr>
         <tr>
             <td colspan="2">
                 <div id="next-turns">
-                    <?php foreach ($nextTurns as $turn): ?>
-                        <div><?php echo $turn['nombre_turno']; ?></div>
-                    <?php endforeach; ?>
+                    <?php
+                    // Mostrar los turnos siguientes sin los paréntesis de box
+                    foreach ($turnos_siguientes as $turno) {
+                        echo "<p>{$turno['nombre_turno']}</p>";
+                    }
+                    ?>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <div id="box3-turns">
+                    <?php
+                    // Mostrar los turnos del box 3 sin los paréntesis de box
+                    foreach ($turnos_actuales['veterinaria'] as $numero_box => $nombre_turno) {
+                        if ($numero_box > 2) {
+                            echo "<p>{$nombre_turno}</p>";
+                        }
+                    }
+                    ?>
                 </div>
             </td>
         </tr>
     </table>
     <script>
-        function updateTurns() {
-            var xmlhttp = new XMLHttpRequest();
-            xmlhttp.onreadystatechange = function() {
-                if (this.readyState == 4 && this.status == 200) {
-                    var response = JSON.parse(this.responseText);
-                    var currentTurns = response.currentTurns;
-                    var nextTurns = response.nextTurns;
+        // Aquí vendría el código JavaScript que actualiza los datos del visor y los muestra en pantalla
+        // Función para actualizar la página cada 5 segundos
+    function actualizarPagina() {
+        location.reload();
+    }
 
-                    // Actualizar los turnos actuales en el visor
-                    var currentTurnHtml = '';
-                    for (var i = 0; i < currentTurns.length; i++) {
-                        var nombreTurno = currentTurns[i].nombre_turno;
-
-                        if (nombreTurno.charAt(0) === "A") {
-                            currentTurnHtml += '<div class="current-turn">' + nombreTurno + '</div>';
-                        } else {
-                            currentTurnHtml += '<div>' + nombreTurno + '</div>';
-                        }
-                    }
-                    document.getElementById("current-turn").innerHTML = currentTurnHtml;
-
-                    // Actualizar los turnos siguientes en el visor
-                    var nextTurnsHtml = '';
-                    for (var i = 0; i < nextTurns.length; i++) {
-                        var nombreTurno = nextTurns[i].nombre_turno;
-                        nextTurnsHtml += '<div>' + nombreTurno + '</div>';
-                    }
-                    document.getElementById("next-turns").innerHTML = nextTurnsHtml;
-
-                    // Verificar si hay que mostrar o ocultar los botones de finalización
-                    var finalizarButton = document.getElementById("finalizar-button");
-                    if (currentTurns.length > 0) {
-                        finalizarButton.style.display = "block";
-                    } else {
-                        finalizarButton.style.display = "none";
-                    }
-                }
-            };
-            xmlhttp.open("GET", "update_turns.php", true);
-            xmlhttp.send();
-        }
-
-        function finalizarTurno() {
-            var xmlhttp = new XMLHttpRequest();
-            xmlhttp.open("GET", "finalizar_turno.php", true);
-            xmlhttp.send();
-        }
-
-        // Llama a la función updateTurns() cuando se carga la página
-        window.onload = function() {
-            updateTurns();
-            setInterval(updateTurns, 5000); // Actualizar cada 5 segundos (ajustar según tus necesidades)
-        };
+    // Actualizar la página cada 5 segundos
+    setTimeout(actualizarPagina, 1000);
     </script>
 </body>
 </html>
