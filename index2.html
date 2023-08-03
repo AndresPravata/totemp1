@@ -239,103 +239,140 @@ $(document).ready(function() {
 
 						  
 						<!-- About -->
-						<article id="about" style="max-width: 18200px;" style="min-width: 11200px;"class="active">
+						<article id="about" style="max-width: 18200px;" style="min-width: 11200px;" class="active">
+							<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 							<h2 class="major">Peluquería</h2>
 							<span class="image main"><img src="images/pic03.jpg" alt="" /></span>
 							<p>Nuestro servicio de peluquería funciona mediante agenda</p>
 							<!-- Formulario para agendar turno -->
-							<div id="form-container">
-							  <form>
-								<label for="phone">Ingresa tu número de teléfono:</label>
-								<div class="form-row">
-								  <input type="tel" id="phone" name="phone" required>
-								  <button type="button" onclick="deleteLastDigit()" style="font-size: 16px; padding: 3px 5px;">Borrar</button>
-
-								</div>
-								<div class="form-row">
-									<button type="button" onclick="addDigit('1')">1</button>
-									<button type="button" onclick="addDigit('2')">2</button>
-									<button type="button" onclick="addDigit('3')">3</button>
-								  </div>
-								  <div class="form-row">
-									<button type="button" onclick="addDigit('4')">4</button>
-									<button type="button" onclick="addDigit('5')">5</button>
-									<button type="button" onclick="addDigit('6')">6</button>
-								  </div>
-								  <div class="form-row">
-									<button type="button" onclick="addDigit('7')">7</button>
-									<button type="button" onclick="addDigit('8')">8</button>
-									<button type="button" onclick="addDigit('9')">9</button>
-								  </div>
-								  <div class="form-row">
-									<button type="button" onclick="addDigit('0')">0</button>
-									<button type="button" onclick="deleteLastDigit()">Borrar</button>
-								  </div>
-								  <button type="button" onclick="sendWhatsAppMessage()">Enviar</button>
+							<div class="container-sm">
+								<form class="row g-3 needs-validation">
+									<div class="mb-3">
+										<label for="txt_celular" class="form-label">Ingresa tu número de teléfono:</label>
+										<div class="form-row">
+											<input type="tel" class="form-control" id="txt_celular">
+										</div>
+										<button type="button" onclick="updatePhoneNumber('Borrar')">Borrar</button>
+									</div>
 								</form>
-							  </div>
+							</div>
+							<div class="form-row">
+								<button type="button" onclick="updatePhoneNumber('1')">1</button>
+								<button type="button" onclick="updatePhoneNumber('2')">2</button>
+								<button type="button" onclick="updatePhoneNumber('3')">3</button>
+							</div>
+							<div class="form-row">
+								<button type="button" onclick="updatePhoneNumber('4')">4</button>
+								<button type="button" onclick="updatePhoneNumber('5')">5</button>
+								<button type="button" onclick="updatePhoneNumber('6')">6</button>
+							</div>
+							<div class="form-row">
+								<button type="button" onclick="updatePhoneNumber('7')">7</button>
+								<button type="button" onclick="updatePhoneNumber('8')">8</button>
+								<button type="button" onclick="updatePhoneNumber('9')">9</button>
+							</div>
+							<div class="form-row">
+								<button type="button" onclick="updatePhoneNumber('0')">0</button>
+								<button type="button" onclick="updatePhoneNumber('Borrar')">Borrar</button>
+							</div>
+							<input type="button" class="btn btn-primary" id="btn_notificar" value="Enviar" />
+						
 							<!-- Estilo CSS para el botón "Enviar" y la botonera -->
 							<style>
-							 #form-container button[type="button"] {
-      background-color: transparent;
-      border: 1px solid black;
-      color: black;
-      padding: 30px 30px;
-      text-align: center;
-      text-decoration: none;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 24px;
-      margin: 5px; /* Ajusta el margen entre los botones */
-      cursor: pointer;
-      line-height: 1;
-      width: 100%;
-      max-width: 120px;
-    }
-
-    .form-row {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 5px;
-    }
-
-    .form-row input[type="tel"] {
-      width: 100%;
-      font-size: 20px;
-      padding: 8px;
-      border: 1px solid black;
-    }
-
-    /* Estilo específico para el botón "Borrar" */
-    .form-row button[type="button"]:last-child {
-      max-width: 120px;
-    }
+								#form-container button[type="button"] {
+									background-color: transparent;
+									border: 1px solid black;
+									color: black;
+									padding: 30px 30px;
+									text-align: center;
+									text-decoration: none;
+									display: flex;
+									justify-content: center;
+									align-items: center;
+									font-size: 24px;
+									margin: 5px; /* Ajusta el margen entre los botones */
+									cursor: pointer;
+									line-height: 1;
+									width: 100%;
+									max-width: 120px;
+								}
+						
+								.form-row {
+									display: flex;
+									align-items: center;
+									justify-content: center;
+									margin-bottom: 5px;
+								}
+						
+								.form-row input[type="tel"] {
+									width: 100%;
+									font-size: 20px;
+									padding: 8px;
+									border: 1px solid black;
+								}
+						
+								/* Estilo específico para el botón "Borrar" */
+								.form-row button[type="button"]:last-child {
+									max-width: 120px;
+								}
 							</style>
+						
 							<!-- Script para enviar el mensaje de WhatsApp -->
 							<script>
-							  let phone = '';
-							  function addDigit(digit) {
-								phone += digit;
-								document.getElementById('phone').value = phone;
-							  }
-						  
-							  function deleteLastDigit() {
-  phone = phone.substring(0, phone.length - 1);
-  document.getElementById('phone').value = phone;
-}
-
-
-function sendWhatsAppMessage() {
-  let phone = document.getElementById('phone').value;
-  let message = 'Hola, quiero agendar un turno en la peluquería';
-  let encodedMessage = encodeURIComponent(message);
-  let whatsappUrl = `https://wa.me/${phone}?text=${encodedMessage}`;
-  window.location.href = whatsappUrl;
-}
-</script>
-</article>
+								function updatePhoneNumber(digit) {
+									const inputField = document.getElementById('txt_celular');
+									const currentValue = inputField.value;
+						
+									if (digit === 'Borrar') {
+										// Borra el último dígito si hay alguno
+										if (currentValue.length > 0) {
+											inputField.value = currentValue.slice(0, -1);
+										}
+									} else {
+										// Agrega el dígito seleccionado al número de teléfono
+										inputField.value = currentValue + digit;
+									}
+								}
+						
+								$(document).ready(function () {
+									$("#btn_notificar").click(function () {
+										var token = "GA230726103341";
+										var api =
+											"https://script.google.com/macros/s/AKfycbyoBhxuklU5D3LTguTcYAS85klwFINHxxd-FroauC4CmFVvS0ua/exec";
+										var phoneNumber = $("#txt_celular").val();
+										var message = "Buen día, este es el link en que usted puede agendar su turno de peluquería ...";
+						
+										if (phoneNumber.trim() !== "") {
+											var payload = {
+												op: "registermessage",
+												token_qr: token,
+												mensajes: [
+													{
+														numero: phoneNumber,
+														mensaje: message,
+													},
+												],
+											};
+						
+											$.ajax({
+												url: api,
+												jsonp: "callback",
+												method: "POST",
+												data: JSON.stringify(payload),
+												async: false,
+												success: function (respuestaSolicitud) {
+													alert(respuestaSolicitud.message);
+												},
+											});
+										} else {
+											alert("Por favor, ingrese un número de teléfono válido.");
+										}
+									});
+								});
+							</script>
+						</article>
+						
+						
 
 
 

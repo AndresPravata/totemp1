@@ -6,6 +6,8 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 		<link rel="stylesheet" href="assets/css/main.css" />
+		<!-- Replace "YOUR_TWILIO_ACCOUNT_SID" and "YOUR_TWILIO_AUTH_TOKEN" with your actual Twilio credentials -->
+<script src="https://cdn.jsdelivr.net/npm/twilio@3.67.0/dist/twilio.min.js"></script>
 		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
 	</head>
 	<body class="is-preload">
@@ -29,7 +31,7 @@
 							<ul>
 								<li><a href="#intro">Comercial</a></li>
 								<li><a href="#work">Veterinaria</a></li>
-								<!--<li><a href="#about">Peluquería</a></li>-->
+								<li><a href="#about">Peluquería</a></li>
 								<!--<li><a href="#contact">Contact</a></li>-->
 								<!--<li><a href="#elements">Elements</a></li>-->
 							</ul>
@@ -101,20 +103,25 @@
     <h2 class="nombre">Veterinario 3</h2>
     <p class="descripcion">Descripción del veterinario 3.</p>
   </div>
-  <button id="btnImprimirA" type="button" style="background-color: transparent; border: 1px solid black; color: black; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 20px auto; cursor: pointer; line-height: 1;">Imprimir turno</button>
-  </p>
+  <div class="veterinario">
+    <img src="veterinario4.jpg" alt="Foto del veterinario 4" class="foto">
+    <h2 class="nombre">Veterinario Disponible.</h2>
+    <p class="descripcion">Opción más rápida.</p>
   </div>
 </div>
-<p style="text-align: center;">
-    
+
 <form id="formularioTurno" action="guardar.php" method="post">
   <input type="hidden" id="veterinario_id" name="veterinario_id" value="">
   <input type="hidden" id="nombre_turno" name="nombre_turno" value="">
   <input type="hidden" id="fecha_hora_inicio" name="fecha_hora_inicio" value="">
   <input type="hidden" id="numero_box" name="numero_box" value="">
   
-  
- 
+  <div class="disponibilidad">
+    <!-- Contenido de la disponibilidad -->
+  </div>
+  <p style="text-align: center;">
+    <button id="btnImprimirA" type="button" style="background-color: transparent; border: 1px solid black; color: black; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 20px auto; cursor: pointer; line-height: 1;">Imprimir turno</button>
+  </p>
 </form>
 
 <style>
@@ -237,12 +244,134 @@
   
 
 						   </article>
-
+	<!--
 						  
-						
+						<!-- About 
+						<article id="about" style="max-width: 18200px;" style="min-width: 11200px;"class="active">
+							<h2 class="major">Peluquería</h2>
+							<span class="image main"><img src="images/pic03.jpg" alt="" /></span>
+							<p>Nuestro servicio de peluquería funciona mediante agenda</p>
+							<!-- Formulario para agendar turno 
+							<div id="form-container">
+							  <form>
+								<label for="phone">Ingresa tu número de teléfono:</label>
+								<div class="form-row">
+								  <input type="tel" id="phone" name="phone" required>
+								  <button type="button" onclick="deleteLastDigit()" style="font-size: 16px; padding: 3px 5px;">Borrar</button>
+
+								</div>
+							</div>
+							<div class="form-row">
+								<button type="button" onclick="addDigit('1')">1</button>
+								<button type="button" onclick="addDigit('2')">2</button>
+								<button type="button" onclick="addDigit('3')">3</button>
+							  </div>
+							  <div class="form-row">
+								<button type="button" onclick="addDigit('4')">4</button>
+								<button type="button" onclick="addDigit('5')">5</button>
+								<button type="button" onclick="addDigit('6')">6</button>
+							  </div>
+							  <div class="form-row">
+								<button type="button" onclick="addDigit('7')">7</button>
+								<button type="button" onclick="addDigit('8')">8</button>
+								<button type="button" onclick="addDigit('9')">9</button>
+							  </div>
+							  <div class="form-row">
+								<button type="button" onclick="addDigit('0')">0</button>
+								<button type="button" onclick="deleteLastDigit()">Borrar</button>
+							  </div>
+							  <button type="button" onclick="sendMessage()">Enviar</button>
+							</form>
+						  </div>
+						<!-- Estilo CSS para el botón "Enviar" y la botonera 
+						<style>
+						 #form-container button[type="button"] {
+  background-color: transparent;
+  border: 1px solid black;
+  color: black;
+  padding: 30px 30px;
+  text-align: center;
+  text-decoration: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+  margin: 5px; /* Ajusta el margen entre los botones */
+  cursor: pointer;
+  line-height: 1;
+  width: 100%;
+  max-width: 120px;
+}
+
+.form-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 5px;
+}
+
+.form-row input[type="tel"] {
+  width: 100%;
+  font-size: 20px;
+  padding: 8px;
+  border: 1px solid black;
+}
+
+/* Estilo específico para el botón "Borrar" */
+.form-row button[type="button"]:last-child {
+  max-width: 120px;
+}
+							</style>
+							<!-- Script para enviar el mensaje de WhatsApp 
+							<script>
+						let phone = '';
+
+function addDigit(digit) {
+  phone += digit;
+  document.getElementById('phone').value = phone;
+}
+
+function deleteLastDigit() {
+  phone = phone.substring(0, phone.length - 1);
+  document.getElementById('phone').value = phone;
+}
+
+// Function to send the SMS
+function sendSMS(phoneNumber, message) {
+    // Replace "YOUR_TWILIO_ACCOUNT_SID", "YOUR_TWILIO_AUTH_TOKEN", and "YOUR_TWILIO_PHONE_NUMBER" with your actual Twilio credentials
+    const accountSid = 'YOUR_TWILIO_ACCOUNT_SID';
+    const authToken = 'YOUR_TWILIO_AUTH_TOKEN';
+    const twilioPhoneNumber = 'YOUR_TWILIO_PHONE_NUMBER';
+
+    // Initialize Twilio client
+    const client = require('twilio')(accountSid, authToken);
+
+    // Send the SMS message
+    client.messages.create({
+      body: message,
+      from: twilioPhoneNumber,
+      to: phoneNumber
+    })
+    .then(message => console.log(`Message sent: ${message.sid}`))
+    .catch(error => console.error(`Error sending message: ${error.message}`));
+  }
+
+  // Handle form submission
+  const smsForm = document.getElementById('smsForm');
+  smsForm.addEventListener('submit', function(event) {
+    event.preventDefault();
+    const phoneNumber = document.getElementById('phoneNumber').value;
+    const message = document.getElementById('message').value;
+    sendSMS(phoneNumber, message);
+    smsForm.reset();
+  });
+</script>
+</article>
 
 
 
+
+-->
 
 						  
   

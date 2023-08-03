@@ -47,7 +47,7 @@ $turno_actual = obtener_turno_actual();
 $turno_siguiente = incrementar_turno($turno_actual);
 $printer->text("Turno N°:\n");
 $printer->setEmphasis(true); // Resalta el texto
-$printer->setTextSize(3, 3); // Aumenta el tamaño del texto a 2 veces el tamaño normal
+$printer->setTextSize(5, 5); // Aumenta el tamaño del texto a 2 veces el tamaño normal
 # Imprimir el turno siguiente
 $printer->text("A" . $turno_siguiente . "\n");
 $printer->setEmphasis(false); // Desactiva el resaltado del texto
