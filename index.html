@@ -27,8 +27,10 @@
 						</div>
 						<nav>
 							<ul>
-								<li><a href="#intro">Comercial</a></li>
+								<li><a href="#intro">Ventas</a></li>
 								<li><a href="#work">Veterinaria</a></li>
+
+								</style>
 								<!--<li><a href="#about">Peluquería</a></li>-->
 								<!--<li><a href="#contact">Contact</a></li>-->
 								<!--<li><a href="#elements">Elements</a></li>-->
@@ -41,10 +43,11 @@
 
 						
 						<article id="intro">
-							<h2 class="major">Comercial</h2>
+							<h2 class="major">Ventas</h2>
 							<span class="image main"><img src="images/pic01.jpeg" alt="" /></span>
 							<p>A continuacion podra sacar turno para ser atendido y comprar nuestros productos</p>
 							<p><p style="text-align: center;"><button id="btnImprimirC" style="background-color: transparent; border: 1px solid black; color: black; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 20px auto; cursor: pointer; line-height: 1;">Imprimir</button></p>
+							
 							<script src="jquery-3.1.1.min.js"></script>
 							<script>
 								$(document).ready(function () {
@@ -158,6 +161,10 @@
 
 <script src="jquery-3.1.1.min.js"></script>
 <script>
+	document.addEventListener('contextmenu', function(event) {
+    event.preventDefault(); // Esto previene que aparezca el menú contextual
+    // Aquí puedes agregar cualquier otra lógica que quieras realizar al hacer clic derecho
+});
 	$(document).ready(function(){
 		$('#btnImprimirA').click(function(){
 			$.ajax({

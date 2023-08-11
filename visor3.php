@@ -208,44 +208,94 @@ $conn->close();
 ?>
 
 
-
 <!DOCTYPE html>
 <html>
 <head>
     <link rel="stylesheet" href="assets/css/main.css" />
     <noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
-    
+   
     <title>Visor de Turnos</title>
     
     <style>
+        /*slider*/
+        * {
+    margin: 0;
+    padding: 0;
+    font-family: lato;
+}
+
+h2 {
+    text-align: center;
+    font-size: 2rem;
+    padding-top: 50px;
+}
+
+.slider-frame {
+	width: 1280px;
+    height: auto;
+	margin:50px auto 0;
+	overflow: hidden;
+}
+
+.slider-frame ul {
+	display: flex;
+	padding: 0;
+	width: 400%;
+	
+	animation: slide 20s infinite alternate ease-in-out;
+}
+
+.slider-frame li {
+	width: 100%;
+	list-style: none;
+}
+
+.slider-frame img {
+	width: 100%;
+}
+
+@keyframes slide {
+	0% {margin-left: 0;}
+	20% {margin-left: 0;}
+	
+	25% {margin-left: -100%;}
+	45% {margin-left: -100%;}
+	
+	50% {margin-left: -200%;}
+	70% {margin-left: -200%;}
+	
+	75% {margin-left: -300%;}
+	100% {margin-left: -300%;}
+}
+        /*slider*/
          /* Estilos para la tabla */
          table {
             width: 100%;
-            border-collapse: collapse;
+            border-collapse: 5px;
         }
 
         th, tr, td {
-            border: 1px solid black;
-            padding: 8px;
+            border: 10px solid black;
+            padding: 0px;
             text-align: center;
         }
 
         /* Estilo específico para el turno actual de comercial */
         #current-turn {
-            font-size: 80px;
+            font-size: 100px;
             font-weight: bold; /* Texto en negrita */
         }
 
         /* Estilo para los turnos en Box 1 y Box 2 de veterinaria */
         #box1-turn, #box2-turn {
             font-weight: bold; /* Texto en negrita */
-            font-size: 80px; /* Tamaño de fuente aumentado */
+            font-size: 100px; /* Tamaño de fuente aumentado */
         }
 
         /* Nuevos estilos para la disposición de los turnos en la parte inferior de la pantalla */
         #turnos-container {
             position: fixed;
-            bottom: 10px; /* Ajusta el margen inferior para controlar la distancia del borde inferior */
+            bottom: 0px; /* Ajusta el margen inferior para controlar la distancia del borde inferior */
             left: 0;
             width: 100%;
             display: flex;
@@ -257,7 +307,7 @@ $conn->close();
         #veterinaria-container {
             width: 45%;
             border: 1px solid black;
-            padding: 10px;
+            padding: 0px;
             text-align: center; /* Centrar el contenido horizontalmente */
             display: flex; /* Mostrar los elementos internos en línea */
             flex-direction: column; /* Alinear los elementos internos en columna */
@@ -309,6 +359,14 @@ $conn->close();
     <!-- Nueva sección para mostrar los turnos en la parte inferior de la pantalla -->
     <div id="turnos-container">
         <!-- Sección de Veterinaria -->
+        <div class="slider-frame">
+        <ul>
+            <li><img src="slider1.jpg" alt=""></li>
+            <li><img src="slider2.jpg" alt=""></li>
+            <li><img src="slider3.jpg" alt=""></li>
+            <li><img src="slider4.jpg" alt=""></li>
+        </ul>
+    </div>
         <div id="veterinaria-container">
             <h2 ><strong>Veterinaria</strong></h2>
             <div class="box2">
