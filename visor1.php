@@ -306,6 +306,8 @@ $conn->close();
     </style>
 </head>
 <body>
+<h1>Bienvenido a Veterinaria Dr. Luffi</h1>
+    <iframe src="http://localhost/p1/slider.php" width="800" height="600" frameborder="0"></iframe>
     <!-- Nueva sección para mostrar los turnos en la parte inferior de la pantalla -->
     <div id="turnos-container">
         <!-- Sección de Veterinaria -->

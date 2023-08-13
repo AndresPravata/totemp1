@@ -207,19 +207,70 @@ if (empty($turnos_siguientes)) {
 $conn->close();
 ?>
 
-
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <link rel="stylesheet" href="assets/css/main.css" />
-    <noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
-    
-    <title>Visor de Turnos</title>
-    
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slider y Visor de Turnos</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/noscript.css">
     <style>
-         /* Estilos para la tabla */
-         table {
+        /* Estilos del slider */
+        * {
+    margin: 0;
+    padding: 0;
+    font-family: lato;
+}
+
+h2 {
+    text-align: center;
+    font-size: 2rem;
+    padding-top: 50px;
+}
+
+.slider-frame {
+	width: 1280px;
+    height: auto;
+	margin:50px auto 0;
+	overflow: hidden;
+}
+
+.slider-frame ul {
+	display: flex;
+	padding: 0;
+	width: 400%;
+	
+	animation: slide 20s infinite alternate ease-in-out;
+}
+
+.slider-frame li {
+	width: 100%;
+	list-style: none;
+}
+
+.slider-frame img {
+	width: 100%;
+}
+
+@keyframes slide {
+	0% {margin-left: 0;}
+	20% {margin-left: 0;}
+	
+	25% {margin-left: -100%;}
+	45% {margin-left: -100%;}
+	
+	50% {margin-left: -200%;}
+	70% {margin-left: -200%;}
+	
+	75% {margin-left: -300%;}
+	100% {margin-left: -300%;}
+}
+        /* Estilos para el visor de turnos */
+        /* Estilos para la tabla */
+        table {
             width: 100%;
             border-collapse: collapse;
         }
@@ -302,53 +353,69 @@ $conn->close();
         #veterinaria-container .box2 > div:last-child {
             margin-left: 10px; /* Ajusta este valor según sea necesario */
         }
-        
     </style>
 </head>
 <body>
-<h1>Bienvenido a Veterinaria Dr. Luffi</h1>
-    <iframe src="http://localhost/p1/slider.php" width="800" height="600" frameborder="0"></iframe>
+    <!-- Sección del Slider -->
+    <h2>Slider automático con HTML & CSS</h2>
+    <div class="slider-frame">
+        <ul>
+            <li><img src="slider1.jpg" alt=""></li>
+            <li><img src="slider2.jpg" alt=""></li>
+            <li><img src="slider3.jpg" alt=""></li>
+            <li><img src="slider4.jpg" alt=""></li>
+        </ul>
+    </div>
+
+    <!-- Sección del Visor de Turnos -->
+    <div id="turnos-container">
+          
     <!-- Nueva sección para mostrar los turnos en la parte inferior de la pantalla -->
     <div id="turnos-container">
-    <!-- Sección de Veterinaria -->
-    <div id="veterinaria-container">
-        <h2><strong>Veterinaria</strong></h2>
-        <div class="box2">
-            <div>
-                <p class="box-turn" id="box1"></p>
-            </div>
-            <div class="divider"></div> <!-- Línea vertical -->
-            <div>
-                <p class="box-turn" id="box2"></p>
+        <!-- Sección de Veterinaria -->
+        <div id="veterinaria-container">
+            <h2 ><strong>Veterinaria</strong></h2>
+            <div class="box2">
+                <div>
+                    <p class="box-turn"><?php echo $turnos_actuales['veterinaria'][1]; ?> BOX 1</p>
+                </div>
+                <div class="divider"></div> <!-- Línea vertical -->
+                <div>
+                    <p class="box-turn"><?php echo $turnos_actuales['veterinaria'][2]; ?> BOX 2</p>
+                </div>
             </div>
         </div>
+
+        <!-- Sección de Comercial -->
+        <div id="comercial-container">
+            <h2><strong>Comercial</strong></h2>
+            <p class="box-turn"><?php echo $turnos_actuales['comercial']; ?></p>
+        </div>
+    </div>
     </div>
 
-    <!-- Sección de Comercial -->
-    <div id="comercial-container">
-        <h2><strong>Comercial</strong></h2>
-        <p class="box-turn" id="comercial"></p>
-    </div>
-</div>
+    <!-- JavaScript para actualizar la página -->
+    <script>
+   // Obtén la referencia al elemento ul del slider
+   const sliderUl = document.querySelector('.slider-frame ul');
 
-<script>
-    function actualizarTurnos() {
-        fetch('get_turnos.php')
-            .then(response => response.json())
-            .then(data => {
-                // Actualizar los elementos HTML con los nuevos datos
-                document.getElementById('box1').textContent = data.veterinaria[1];
-                document.getElementById('box2').textContent = data.veterinaria[2];
-                document.getElementById('comercial').textContent = data.comercial;
-            })
-            .catch(error => {
-                console.error('Error al obtener los turnos:', error);
-            });
-    }
+// Obtén la posición actual del slider antes de la actualización
+const currentSliderPosition = Math.abs(parseInt(sliderUl.style.marginLeft) / 100);
 
-    // Actualizar los turnos cada 5 segundos
-    setInterval(actualizarTurnos, 5000);
-</script>
+// Función para actualizar la página cada 5 segundos
+function actualizarPagina() {
+    // Guarda la posición actual del slider en el Local Storage
+    localStorage.setItem('sliderPosition', currentSliderPosition);
+    location.reload();
+}
 
+// Configura la posición del slider al valor guardado en el Local Storage
+const savedSliderPosition = localStorage.getItem('sliderPosition');
+if (savedSliderPosition) {
+    sliderUl.style.marginLeft = `-${savedSliderPosition * 100}%`;
+}
+
+// Actualizar la página cada 5 segundos
+setTimeout(actualizarPagina, 5000);
 </body>
 </html>

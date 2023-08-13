@@ -27,15 +27,35 @@
 						</div>
 						<nav>
 							<ul>
-								<li><a href="#intro">Ventas</a></li>
-								<li><a href="#work">Veterinaria</a></li>
-
-								</style>
+								<li><a href="#intro" >Ventas</a></li>
+                                <li><a href="#work" >Veterinaria</a></li>
+								<style>
+									li a {
+									  display: inline-block;
+									  width: 300px; /* Ajusta el ancho según sea necesario */
+									  text-align: center;
+									}
+								  </style>
+								
 								<!--<li><a href="#about">Peluquería</a></li>-->
 								<!--<li><a href="#contact">Contact</a></li>-->
 								<!--<li><a href="#elements">Elements</a></li>-->
 							</ul>
 						</nav>
+						<script>
+							document.addEventListener("DOMContentLoaded", function() {
+								var element = document.documentElement;
+								if (element.requestFullscreen) {
+									element.requestFullscreen();
+								} else if (element.mozRequestFullScreen) {
+									element.mozRequestFullScreen();
+								} else if (element.webkitRequestFullscreen) {
+									element.webkitRequestFullscreen();
+								} else if (element.msRequestFullscreen) {
+									element.msRequestFullscreen();
+								}
+							});
+							</script>
 					</header>
 
 				<!-- Main -->
