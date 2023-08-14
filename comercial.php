@@ -42,16 +42,30 @@ $conn->close();
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Visor de Turnos</title>
+<link rel="stylesheet" href="assets/css/main.css" />
+    <noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+    <title>VENTAS</title>
 </head>
 <body>
-    <h1>Visor de Turnos</h1>
+<!-- Wrapper -->
+<div id="wrapper">
 
-    <div id="box4-current-turn"></div>
+<!-- Header -->
+<header id="header">
+    <div class="logo logo-container">
+        <img src="images/logo.png" alt="Logo de Totem Veterinaria">
+    </div>
+        <div class="content">
+            <div class="inner">
+                <h1>Veterinaria Dr.Luffi</h1>
+            <!-- <p>A fully responsive site template designed by <a href="https://html5up.net">HTML5 UP</a> and released<br />
+                for free under the <a href="https://html5up.net/license">Creative Commons</a> license.</p> -->
+            </div>
+            <div id="box4-current-turn"></div>
     <form method="post">
-        <button type="submit" name="marcar_finalizado">Turno Finalizado</button>
+        <button type="submit" name="marcar_finalizado">Finalizar Turno</button>
     </form>
-
+        </div>
     <script>
         var box4CurrentTurn = <?php echo json_encode($box4CurrentTurn); ?>;
 

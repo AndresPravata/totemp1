@@ -10,9 +10,10 @@ if ($conn->connect_error) {
     die("Error de conexión: " . $conn->connect_error);
 }
 date_default_timezone_set("America/Argentina/Buenos_Aires");
+$fechaActual = date("d/m/Y");
 
 // Obtener los datos de la tabla turnos ordenados por estado y nombre_turno, excluyendo los turnos con estado 'finalizado'
-$sql = "SELECT nombre_turno, numero_box, estado FROM turnos WHERE estado != 'finalizado' ORDER BY estado, nombre_turno";
+$sql = "SELECT nombre_turno, numero_box, estado FROM turnos WHERE estado != 'finalizado' and date(fecha_hora_inicio) = STR_TO_DATE('$fechaActual' , '%d/%m/%Y')  ORDER BY estado, nombre_turno";
 $result = $conn->query($sql);
 
 // Lógica para separar los turnos actuales y siguientes por box
@@ -218,128 +219,179 @@ $conn->close();
     <title>Visor de Turnos</title>
     
     <style>
-         /* Estilos para la tabla */
-         table {
-            width: 100%;
-            border-collapse: collapse;
-        }
+        body {
+        background-color: transparent;
+    }
 
-        th, tr, td {
-            border: 1px solid black;
-            padding: 8px;
-            text-align: center;
-        }
+    /* Estilos para la tabla */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
 
-        /* Estilo específico para el turno actual de comercial */
-        #current-turn {
-            font-size: 80px;
-            font-weight: bold; /* Texto en negrita */
-        }
+    th, tr, td {
+        border: 18px solid black;
+        padding: 8px;
+        text-align: center;
+    }
 
-        /* Estilo para los turnos en Box 1 y Box 2 de veterinaria */
-        #box1-turn, #box2-turn {
-            font-weight: bold; /* Texto en negrita */
-            font-size: 80px; /* Tamaño de fuente aumentado */
-        }
+    /* Estilo específico para el turno actual de comercial */
+    #current-turn {
+        font-size: 100px;
+        font-weight: bold; /* Texto en negrita */
+    }
 
-        /* Nuevos estilos para la disposición de los turnos en la parte inferior de la pantalla */
-        #turnos-container {
-            position: fixed;
-            bottom: 10px; /* Ajusta el margen inferior para controlar la distancia del borde inferior */
-            left: 0;
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            text-align: center; /* Centrar el contenido horizontalmente */
-        }
+    /* Estilo para los turnos en Box 1 y Box 2 de veterinaria */
+    #box1-turn, #box2-turn {
+        font-weight: bold; /* Texto en negrita */
+        font-size: 100px; /* Tamaño de fuente aumentado */
+    }
 
-        #comercial-container,
-        #veterinaria-container {
-            width: 45%;
-            border: 1px solid black;
-            padding: 10px;
-            text-align: center; /* Centrar el contenido horizontalmente */
-            display: flex; /* Mostrar los elementos internos en línea */
-            flex-direction: column; /* Alinear los elementos internos en columna */
-            justify-content: center; /* Centrar los elementos internos verticalmente */
-            align-items: center; /* Centrar los elementos internos horizontalmente */
-        }
-  /* Nuevos estilos para la línea vertical */
-  .divider {
-            position: relative;
-            width: 2px;
-            height: 100%;
-            background-color: black;
-            margin: 0 auto; /* Centrar horizontalmente */
-        }
-        .box-turn {
-            font-weight: bold;
-            font-size: 80px; /* Tamaño de fuente reducido */
-            margin: 5px 0; /* Margen superior e inferior para los turnos */
-        }
+    /* Nuevos estilos para la disposición de los turnos en la parte inferior de la pantalla */
+    #turnos-container {
+        position: fixed;
+        bottom: 10px; /* Ajusta el margen inferior para controlar la distancia del borde inferior */
+        left: 0;
+        width: 100%;
+        display: flex;
+        justify-content: flex-end; /* Mover los elementos hacia la derecha */
+        text-align: center; /* Centrar el contenido horizontalmente */
+    }
 
-        /* Nuevos estilos para el texto Comercial y Veterinaria */
-        #comercial-container h2 strong,
-        #veterinaria-container h2 strong {
-            font-size: 24px;
-            display: block;
-        }
+    #comercial-container,
+    #veterinaria-container {
+        width: 45%;
+        border: none;
+        padding: 10px;
+        text-align: center; /* Centrar el contenido horizontalmente */
+        display: flex; /* Mostrar los elementos internos en línea */
+        flex-direction: column; /* Alinear los elementos internos en columna */
+        justify-content: center; /* Centrar los elementos internos verticalmente */
+        align-items: center; /* Centrar los elementos internos horizontalmente */
+    }
 
-        /* Nuevos estilos para el Box 2 de Veterinaria */
-        #veterinaria-container .box2 {
-            display: flex; /* Mostrar los elementos internos en línea */
-            justify-content: space-between; /* Espaciado uniforme entre los elementos internos */
-            margin-top: 40px; /* Espacio entre Box 1 y Box 2 */
-            margin-bottom: 40px; /* Espacio inferior para separar de los turnos */
-        }
+    /* Nuevos estilos para la línea vertical */
+    .divider {
+        position: relative;
+        width: 5px;
+        height: 100%;
+        background-color: black;
+        margin: 0 auto; /* Centrar horizontalmente */
+    }
 
-        /* Margen a la izquierda del primer turno en Veterinaria */
-        #veterinaria-container .box2 > div:first-child {
-            margin-right: 10px; /* Ajusta este valor según sea necesario */
-        }
+    .box-turn {
+        font-weight: bold;
+        font-size: 50px; /* Tamaño de fuente reducido */
+        margin: 5px 0; /* Margen superior e inferior para los turnos */
+    }
 
-        /* Margen a la derecha del segundo turno en Veterinaria */
-        #veterinaria-container .box2 > div:last-child {
-            margin-left: 10px; /* Ajusta este valor según sea necesario */
-        }
-        
-    </style>
+    /* Nuevos estilos para el Box 2 de Veterinaria */
+    #veterinaria-container .box2 {
+        display: flex; /* Mostrar los elementos internos en línea */
+        justify-content: space-between; /* Espaciado uniforme entre los elementos internos */
+        margin-top: 40px; /* Espacio entre Box 1 y Box 2 */
+        margin-bottom: 40px; /* Espacio inferior para separar de los turnos */
+    }
+
+    /* Margen a la derecha del primer turno en Veterinaria */
+    #veterinaria-container .box2 > div:first-child {
+        margin-right: 60px; /* Ajusta este valor según sea necesario */
+    }
+
+    /* Margen a la derecha del segundo turno en Veterinaria */
+    #veterinaria-container .box2 > div:last-child {
+        margin-left: 50px; /* Ajusta este valor según sea necesario */
+    }
+
+    #comercial-container {
+        display: flex;
+        align-items: center; /* Centrar verticalmente el contenido */
+        height: 235px; /* Ajusta esta altura según tus necesidades */
+    }
+</style>
+
 </head>
 <body>
-<h1>Bienvenido a Veterinaria Dr. Luffi</h1>
-    <iframe src="http://localhost/p1/slider.php" width="800" height="600" frameborder="0"></iframe>
+
     <!-- Nueva sección para mostrar los turnos en la parte inferior de la pantalla -->
     <div id="turnos-container">
         <!-- Sección de Veterinaria -->
         <div id="veterinaria-container">
-            <h2 ><strong>Veterinaria</strong></h2>
             <div class="box2">
                 <div>
-                    <p class="box-turn"><?php echo $turnos_actuales['veterinaria'][1]; ?> BOX 1</p>
+                    <p class="box-turn" style="color: white;"><?php echo $turnos_actuales['veterinaria'][1]; ?> BOX 1</p>
                 </div>
-                <div class="divider"></div> <!-- Línea vertical -->
+               
                 <div>
-                    <p class="box-turn"><?php echo $turnos_actuales['veterinaria'][2]; ?> BOX 2</p>
+                    <p class="box-turn" style="color: white;"><?php echo $turnos_actuales['veterinaria'][2]; ?> BOX 2</p>
                 </div>
             </div>
         </div>
 
         <!-- Sección de Comercial -->
         <div id="comercial-container">
-            <h2><strong>Comercial</strong></h2>
-            <p class="box-turn"><?php echo $turnos_actuales['comercial']; ?></p>
+            <div class="box2">
+            <p class="box-turn" style="color: white;"><?php echo $turnos_actuales['comercial']; ?> </p>
+            </div>
         </div>
     </div>
 
     <script>
+        var fechaHoraActual = new Date();
+
+
+        var hora = fechaHoraActual.getHours();
+        if (hora >= 22) {
+            function resetNumeroTurnoV() {
+      // Objeto XMLHttpRequest para realizar la llamada AJAX
+      var xhttp = new XMLHttpRequest();
+
+      // Configurar la llamada AJAX
+      xhttp.open("POST", "guardar_numero_turnoV.php", true);
+
+      // Definir el encabezado para indicar que se enviará un formulario
+      xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+      // Preparar los datos a enviar
+      var datos = "numeroTurno=1"; // Establecer el número de turno en 0
+
+      // Enviar la llamada AJAX
+      xhttp.send(datos);
+
+    }
+    resetNumeroTurnoV();
+            function resetNumeroTurnoC() {
+      // Objeto XMLHttpRequest para realizar la llamada AJAX
+      var xhttp = new XMLHttpRequest();
+
+      // Configurar la llamada AJAX
+      xhttp.open("POST", "guardar_numero_turno.php", true);
+
+      // Definir el encabezado para indicar que se enviará un formulario
+      xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+      // Preparar los datos a enviar
+      var datos = "numeroTurno=0"; // Establecer el número de turno en 0
+
+      // Enviar la llamada AJAX
+      xhttp.send(datos);
+
+     
+    }
+    resetNumeroTurnoC();
+
+    
+        console.log("La hora es mayor a 22. ");
+        }
+        
         // Aquí vendría el código JavaScript que actualiza los datos del visor y los muestra en pantalla
         // Función para actualizar la página cada 5 segundos
         function actualizarPagina() {
             location.reload();
         }
 
-        // Actualizar la página cada 5 segundos
-        setTimeout(actualizarPagina, 5000);
+        // Actualizar la página cada 1 segundos
+        setTimeout(actualizarPagina, 4000);
     </script>
 </body>
 </html>

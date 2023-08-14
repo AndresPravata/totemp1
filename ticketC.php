@@ -20,7 +20,7 @@ $printer->setJustification(Printer::JUSTIFY_CENTER);
 */
 $printer->setEmphasis(true); // Resalta el texto
 $printer->setTextSize(1, 1); // Aumenta el tamaño del texto a 2 veces el tamaño normal
-$printer->text("Veterinaria Luffi" . "\n");
+$printer->text("Veterinaria Dr.Luffi" . "\n");
 $printer->setEmphasis(false); // Desactiva el resaltado del texto
 $printer->setTextSize(1, 1); // Restablece el tamaño del texto a su valor predeterminado
 

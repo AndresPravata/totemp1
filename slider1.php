@@ -31,11 +31,6 @@
     .container {
       position: relative;
     }
-    .visor-iframe {
-      width: 100%;
-      height: 240px; /* Ajusta la altura según tus necesidades */
-      border: none; /* Para eliminar el borde del iframe */
-    }
   </style>
 </head>
 <body>
@@ -50,13 +45,11 @@
           <img src="slider2.jpg" class="d-block w-100" alt="...">
         </div>
         <div class="carousel-item">
-          <img src="slider3.jpg" class="d-block w-100" alt="...">
+          <img src="..." class="d-block w-100" alt="...">
         </div>
       </div>
     </div>
   </div>
-
-  <iframe class="visor-iframe" src="http://localhost/p1/visor1.php" frameborder="0"></iframe>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
 </body>

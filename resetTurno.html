@@ -5,7 +5,7 @@
 </head>
 <body>
   <h1>Número de Turno: <span id="numeroTurno">0</span></h1>
-  <button onclick="resetNumeroTurno()">Reset</button>
+  <button id="autoClickButton" onclick="resetNumeroTurno()">Reset</button>
 
   <script>
     function resetNumeroTurno() {
@@ -27,6 +27,37 @@
       // Actualizar el número de turno en la interfaz de usuario
       document.getElementById("numeroTurno").innerText = "0";
     }
+
+    // Función para hacer clic en el botón
+    function clickButton() {
+      console.log("Ejecutando clic automático en el botón...");
+      document.getElementById("autoClickButton").click();
+    }
+
+    // Calcula el tiempo hasta la próxima ejecución (15:20 hs)
+    function getTimeUntilNextExecution() {
+      const now = new Date();
+      const targetTime = new Date(now);
+      targetTime.setHours(15);
+      targetTime.setMinutes(40);
+      targetTime.setSeconds(0);
+      targetTime.setMilliseconds(0);
+
+      if (targetTime <= now) {
+        targetTime.setDate(targetTime.getDate() + 1);
+      }
+
+      return targetTime - now;
+    }
+
+    // Ejecuta la función clickButton en el horario deseado
+    setTimeout(function() {
+      clickButton();
+      // Configura un intervalo para ejecutar la función cada 24 horas
+      setInterval(clickButton, 24 * 60 * 60 * 1000);
+    }, getTimeUntilNextExecution());
+
+    console.log("Script cargado correctamente.");
   </script>
 </body>
 </html>

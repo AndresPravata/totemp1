@@ -95,7 +95,7 @@ input, select, textarea {
 	}
 
 	body {
-		background: #1b1f22;
+		background: #563c5e;
 	}
 
 		body.is-preload *, body.is-preload *:before, body.is-preload *:after {
@@ -260,7 +260,7 @@ input, select, textarea {
 	}
 
 	code {
-		background: rgba(255, 255, 255, 0.075);
+		background: rgba(104, 71, 134, 0.075);
 		border-radius: 4px;
 		font-family: "Courier New", monospace;
 		font-size: 0.9rem;
@@ -425,7 +425,7 @@ input, select, textarea {
 		input[type="tel"]:focus,
 		select:focus,
 		textarea:focus {
-			background: rgba(255, 255, 255, 0.075);
+			background: rgba(139, 27, 184, 0.075);
 			border-color: #ffffff;
 			box-shadow: 0 0 0 1px #ffffff;
 		}
@@ -442,7 +442,7 @@ input, select, textarea {
 
 		select option {
 			color: #ffffff;
-			background: #1b1f22;
+			background: #593e6e;
 		}
 
 		select:focus::-ms-value {
@@ -539,7 +539,7 @@ input, select, textarea {
 
 		input[type="checkbox"]:focus + label:before,
 		input[type="radio"]:focus + label:before {
-			background: rgba(255, 255, 255, 0.075);
+			background: rgba(89, 41, 117, 0.247);
 			border-color: #ffffff;
 			box-shadow: 0 0 0 1px #ffffff;
 		}
@@ -647,7 +647,7 @@ input, select, textarea {
 		.image:before {
 			pointer-events: none;
 			background-image: url("../../images/overlay.png");
-			background-color: rgba(19, 21, 25, 0.5);
+			background-color: rgba(79, 36, 99, 0.5);
 			border-radius: 4px;
 			content: '';
 			display: block;
@@ -1575,7 +1575,7 @@ input, select, textarea {
 			position: relative;
 			width: 40rem;
 			max-width: 100%;
-			background-color: rgba(27, 31, 34, 0.85);
+			background-color: rgba(65, 42, 78, 0.85);
 			border-radius: 4px;
 			opacity: 0;
 		}
@@ -1621,11 +1621,11 @@ input, select, textarea {
 				}
 
 				#main article .close:hover:before {
-					background-color: rgba(255, 255, 255, 0.075);
+					background-color: rgba(172, 25, 25, 0.075);
 				}
 
 				#main article .close:active:before {
-					background-color: rgba(255, 255, 255, 0.175);
+					background-color: rgba(95, 13, 102, 0.281);
 				}
 
 		@media screen and (max-width: 736px) {

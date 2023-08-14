@@ -1,0 +1,29 @@
+.background-image {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background: url('veterinariaDrLuffi.png') center/cover no-repeat;
+}
+.carousel-item {
+    height: 30rem;
+    background: #bd4b4b;
+    
+}
+.container {
+    background: transparent;
+}
+.card-body{
+    background: transparent;
+}
+.card-header{
+    background: transparent;
+}
+.carousel slide {
+    background: transparent;
+}
+.carousel-inner {
+    background: transparent;
+}

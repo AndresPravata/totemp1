@@ -28,7 +28,7 @@ try {
 */
 $printer->setEmphasis(true); // Resalta el texto
 $printer->setTextSize(1, 1); // Aumenta el tamaño del texto a 2 veces el tamaño normal
-$printer->text("\n" . "Veterinaria Luffi" . "\n");
+$printer->text("\n" . "Veterinaria Dr.Luffi" . "\n");
 $printer->setEmphasis(false); // Desactiva el resaltado del texto
 $printer->setTextSize(1, 1); // Restablece el tamaño del texto a su valor predeterminado
 
