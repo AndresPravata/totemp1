@@ -12,7 +12,7 @@ if ($conn->connect_error) {
 date_default_timezone_set("America/Argentina/Buenos_Aires");
 $veterinarioId = $_POST['veterinario_id'];
 $nombreTurno = "A" . intval(file_get_contents("turno.txt")); // Obtener el número de turno de turno.txt sin incrementar
-$fechaHoraInicio = $_POST['fecha_hora_inicio'];
+$fechaHoraInicio = date('Y-m-d H:i:s'); 
 $numeroBox = $_POST['numero_box'];
 $estado = "espera"; // Establecer el estado como "espera"
 $sql = "INSERT INTO Turnos (veterinario_id, fecha_hora_inicio, nombre_turno, numero_box, estado) VALUES ($veterinarioId, '$fechaHoraInicio', '$nombreTurno', $numeroBox, '$estado')";
