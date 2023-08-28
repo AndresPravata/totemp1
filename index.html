@@ -67,7 +67,29 @@
 							<span class="image main"><img src="images/pic01.jpeg" alt="" /></span>
 							<p>A continuacion podra sacar turno para ser atendido y comprar nuestros productos</p>
 							<p><p style="text-align: center;"><button id="btnImprimirC" style="background-color: transparent; border: 1px solid black; color: black; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 20px auto; cursor: pointer; line-height: 1;">Imprimir</button></p>
-							
+							<script>
+								const btnImprimirC = document.getElementById("btnImprimirC");
+								let isButtonActiveC = true;
+							  
+								btnImprimirC.addEventListener("click", () => {
+								  if (isButtonActiveC) {
+									isButtonActiveC = false;
+									setTimeout(() => {
+									  isButtonActiveC = true;
+									}, 2000); // 2 segundos en milisegundos
+								  }
+								});
+							  </script>
+							  
+							  </body>
+							  </html>
+							  Este código utiliza JavaScript para agregar un event listener al botón. Cuando se hace clic en el botón y está activo (no se ha hecho clic en los últimos 2 segundos), el botón se desactivará por 2 segundos utilizando el setTimeout. Durante ese tiempo, el botón no responderá a más clics. Una vez que hayan pasado los 2 segundos, el botón se reactivará automáticamente y podrá ser presionado nuevamente.
+							  
+							  
+							  
+							  
+							  
+							  
 							<script src="jquery-3.1.1.min.js"></script>
 							<script>
 								$(document).ready(function () {
@@ -126,6 +148,19 @@
   </div>
   <button id="btnImprimirA" type="button" style="background-color: transparent; border: 1px solid black; color: black; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 20px auto; cursor: pointer; line-height: 1;">Imprimir turno</button>
   </p>
+  <script>
+	const btnImprimirA = document.getElementById("btnImprimirA");
+	let isButtonActive = true;
+  
+	btnImprimirA.addEventListener("click", () => {
+	  if (isButtonActive) {
+		isButtonActive = false;
+		setTimeout(() => {
+		  isButtonActive = true;
+		}, 2000); // 2 segundos en milisegundos
+	  }
+	});
+  </script>
   </div>
 </div>
 <p style="text-align: center;">

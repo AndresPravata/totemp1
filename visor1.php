@@ -9,6 +9,7 @@ $conn = new mysqli($servername, $username, $password, $dbname);
 if ($conn->connect_error) {
     die("Error de conexión: " . $conn->connect_error);
 }
+
 date_default_timezone_set("America/Argentina/Buenos_Aires");
 $fechaActual = date("d/m/Y");
 
@@ -35,48 +36,16 @@ while ($row = $result->fetch_assoc()) {
     }
 }
 
-// Agregar los turnos comerciales con estado 'espera' en la sección de 'Turnos siguientes'
-$sql_espera_comercial = "SELECT nombre_turno FROM turnos WHERE estado = 'espera' AND numero_box = 4 ORDER BY nombre_turno";
-$result_espera_comercial = $conn->query($sql_espera_comercial);
-
-while ($row_espera_comercial = $result_espera_comercial->fetch_assoc()) {
-    $nombre_turno_comercial_espera = $row_espera_comercial["nombre_turno"];
-    $turno_existente = false;
-
-    // Verificar si el turno ya existe en $turnos_siguientes
-    foreach ($turnos_siguientes as $turno) {
-        if ($turno['nombre_turno'] == $nombre_turno_comercial_espera && $turno['numero_box'] == 4) {
-            $turno_existente = true;
-            break;
-        }
-    }
-
-    if (!$turno_existente) {
-        $turnos_siguientes[] = array("nombre_turno" => $nombre_turno_comercial_espera, "numero_box" => 4);
-    }
-}
-
-// Ordenar los turnos en espera por orden de llegada
-usort($turnos_siguientes, function ($a, $b) {
-    return strcmp($a['nombre_turno'], $b['nombre_turno']);
-});
-
-// Función para buscar y asignar un turno en 'turnos actuales' si está vacío
+// Función para asignar turnos actuales en veterinaria
 function asignarTurnoActual(&$turnos_actuales, &$turnos_siguientes, $numero_box, $conn) {
     $turno_asignado = false;
+    
     foreach ($turnos_siguientes as $index => $turno) {
         if ($turno['numero_box'] == $numero_box) {
-            // Verificar si los boxes 1 y 2 están ocupados
-            $box1_ocupado = !empty($turnos_actuales['veterinaria'][1]);
-            $box2_ocupado = !empty($turnos_actuales['veterinaria'][2]);
+            // Verificar si el box está ocupado
+            $box_ocupado = !empty($turnos_actuales['veterinaria'][$numero_box]);
 
-            // Asignar el turno a 'espera' si ambos boxes 1 y 2 están ocupados
-            if ($numero_box == 3 && $box1_ocupado && $box2_ocupado) {
-                $conn->query("UPDATE turnos SET estado = 'espera' WHERE nombre_turno = '{$turno['nombre_turno']}' AND estado = 'actual' AND numero_box = 3 LIMIT 1");
-                // Cambiar el estado del turno en 'turnos_siguientes' a 'espera'
-                $turnos_siguientes[$index]['estado'] = 'espera';
-                // No asignar el turno a 'turnos_actuales' en este caso
-            } else {
+            if (!$box_ocupado) {
                 // Actualizar el estado del turno en la base de datos de 'espera' a 'actual'
                 $nombre_turno = $turno['nombre_turno'];
                 $sql_update_estado = "UPDATE turnos SET estado = 'actual' WHERE nombre_turno = '$nombre_turno' AND estado = 'espera' AND numero_box = $numero_box LIMIT 1";
@@ -87,99 +56,37 @@ function asignarTurnoActual(&$turnos_actuales, &$turnos_siguientes, $numero_box,
 
                 // Asignar el turno a 'turnos_actuales'
                 $turnos_actuales['veterinaria'][$numero_box] = $turno['nombre_turno'];
+
+                // Eliminar el turno de 'turnos_siguientes'
+                unset($turnos_siguientes[$index]);
+
+                $turno_asignado = true;
+                break;
             }
-
-            // Eliminar el turno de 'turnos_siguientes'
-            unset($turnos_siguientes[$index]);
-
-            $turno_asignado = true;
-            break;
         }
     }
 
     return $turno_asignado;
 }
 
-// Verificar si hay un turno actual para comercial y si no lo hay, se establecerá como vacío
-if (empty($turnos_actuales['comercial'])) {
-    $turnos_actuales['comercial'] = '';
-}
 
-// Verificar si hay turnos de espera para comercial (Box 4) y si no los hay, se establecerá el array de turnos_siguientes como vacío
-if (empty($turnos_siguientes)) {
-    $turnos_siguientes = array();
-}
-
-// Verificar si hay turnos en Box 1 y Box 2 de veterinaria y si no los hay, se establecerán como vacíos
+// Verificar si hay turnos en Box 1, Box 2 y Box 3 de veterinaria y si no los hay, se establecerán como vacíos
 if (empty($turnos_actuales['veterinaria'][1])) {
     $turnos_actuales['veterinaria'][1] = '';
-
     // Si no hay turno actual en Box 1, intentar asignar uno desde 'turnos_siguientes'
     asignarTurnoActual($turnos_actuales, $turnos_siguientes, 1, $conn);
 }
-
 if (empty($turnos_actuales['veterinaria'][2])) {
     $turnos_actuales['veterinaria'][2] = '';
-
     // Si no hay turno actual en Box 2, intentar asignar uno desde 'turnos_siguientes'
     asignarTurnoActual($turnos_actuales, $turnos_siguientes, 2, $conn);
 }
-
-// Verificar si hay un turno actual para comercial y si no lo hay, se establecerá como vacío
-if (empty($turnos_actuales['comercial'])) {
-    $turnos_actuales['comercial'] = '';
+if (empty($turnos_actuales['veterinaria'][3])) {
+    $turnos_actuales['veterinaria'][3] = '';
+    // Si no hay turno actual en Box 3, intentar asignar uno desde 'turnos_siguientes'
+    asignarTurnoActual($turnos_actuales, $turnos_siguientes, 3, $conn);
 }
 
-// Verificar si hay turnos de espera para comercial (Box 4) y si no los hay, se establecerá el array de turnos_siguientes como vacío
-if (empty($turnos_siguientes)) {
-    $turnos_siguientes = array();
-} else {
-    // Obtener el primer turno de espera de veterinaria
-    $primer_turno_espera = reset($turnos_siguientes);
-
-    // Verificar si el primer turno de espera tiene asignado el Box 3
-if ($primer_turno_espera['numero_box'] == 3) {
-    // Buscar un Box libre (Box 1 o Box 2) para asignar el turno
-    $box_libre = 1;
-    if (!empty($turnos_actuales['veterinaria'][1]) && empty($turnos_actuales['veterinaria'][2])) {
-        $box_libre = 2;
-    } elseif (!empty($turnos_actuales['veterinaria'][2]) && empty($turnos_actuales['veterinaria'][1])) {
-        $box_libre = 1;
-    } elseif (empty($turnos_actuales['veterinaria'][1]) && empty($turnos_actuales['veterinaria'][2])) {
-        // Si ambos Box 1 y Box 2 están desocupados, simplemente mantenerlo en el Box 3
-        $box_libre = 3;
-    } else {
-        // Si ambos Box 1 y Box 2 están ocupados, mantenerlo en el Box 3 en estado de espera
-        $box_libre = -1;
-    }
-
-    if ($box_libre != -1) {
-        // Cambiar el estado y el número de Box del primer turno de espera
-        $sql_update = "UPDATE turnos SET estado = 'actual', numero_box = $box_libre WHERE nombre_turno = '{$primer_turno_espera['nombre_turno']}' AND estado = 'espera' AND numero_box = 3 LIMIT 1";
-        $conn->query($sql_update);
-        // Si se actualizó correctamente, eliminar el turno de espera de $turnos_siguientes
-        unset($turnos_siguientes[key($turnos_siguientes)]);
-
-        // Actualizar el array $turnos_actuales con el nuevo turno asignado
-        $turnos_actuales['veterinaria'][$box_libre] = $primer_turno_espera['nombre_turno'];
-    }
-}
-
-    // Buscar y asignar turnos de espera a sus respectivos box en 'turnos actuales' si están vacíos
-    if (empty($turnos_actuales['veterinaria'][1])) {
-        asignarTurnoActual($turnos_actuales, $turnos_siguientes, 1, $conn);
-    }
-    if (empty($turnos_actuales['veterinaria'][2])) {
-        asignarTurnoActual($turnos_actuales, $turnos_siguientes, 2, $conn);
-    }
-}
-// Verificar si hay un turno actual para comercial y si no lo hay, se establecerá como vacío
-if (empty($turnos_actuales['comercial'])) {
-    $turnos_actuales['comercial'] = '';
-
-    // Si no hay turno actual en Box 4 (comercial), intentar asignar uno desde 'turnos_siguientes'
-    asignarTurnoActual($turnos_actuales, $turnos_siguientes, 4, $conn);
-}
 
 // Verificar si hay turnos de espera para comercial (Box 4) y si no los hay, se establecerá el array de turnos_siguientes como vacío
 if (empty($turnos_siguientes)) {
@@ -206,8 +113,8 @@ if (empty($turnos_siguientes)) {
 }
 
 $conn->close();
-?>
 
+?>
 
 
 <!DOCTYPE html>
@@ -221,6 +128,7 @@ $conn->close();
     <style>
         body {
         background-color: transparent;
+        background-color: black;
     }
 
     /* Estilos para la tabla */
@@ -308,6 +216,7 @@ $conn->close();
         align-items: center; /* Centrar verticalmente el contenido */
         height: 235px; /* Ajusta esta altura según tus necesidades */
     }
+    
 </style>
 
 </head>
@@ -325,6 +234,9 @@ $conn->close();
                 <div>
                     <p class="box-turn" style="color: white;"><?php echo $turnos_actuales['veterinaria'][2]; ?> BOX 2</p>
                 </div>
+                <div>
+                    <p class="box-turn" style="color: white;"><?php echo $turnos_actuales['veterinaria'][3]; ?> BOX 3</p>
+                </div>
             </div>
         </div>
 
@@ -335,8 +247,80 @@ $conn->close();
             </div>
         </div>
     </div>
+    <audio id="sound-box1">
+    <source src="turno.mp3" type="audio/mp3">
+</audio>
+<audio id="sound-box2">
+    <source src="turno.mp3" type="audio/mp3">
+</audio>
+<audio id="sound-box3">
+    <source src="turno.mp3" type="audio/mp3">
+</audio>
+<audio id="sound-box4">
+    <source src="turno.mp3" type="audio/mp3">
+</audio>
+<!-- Repite esto para todos los boxes -->
 
     <script>
+         function llamarUpdate() {
+        console.log("Ejecutando actualización de turnos...");
+
+        // Objeto XMLHttpRequest para realizar la llamada AJAX
+        var xhttp = new XMLHttpRequest();
+
+        // Configurar la llamada AJAX
+        xhttp.onreadystatechange = function() {
+            if (this.readyState === 4) {
+                if (this.status === 200) {
+                    
+                    // Actualizar los datos en la página con la respuesta recibida
+                    var response = JSON.parse(this.responseText);
+                    console.log(JSON.stringify(response, null, 2));
+                    // ... (código para actualizar los turnos en la página)
+                } else {
+                    console.log("Error al recibir la respuesta. Estado: " + this.status);
+                }
+            }
+        };
+        
+        xhttp.open("GET", "update_turns.php", true); // Cambiar la URL a la que devuelve los datos actualizados
+        xhttp.send();
+    }
+
+    // Llamar a la función cada 2 segundos
+    setInterval(llamarUpdate, 20000);
+
+ // Arreglo con los nuevos valores de los turnos A-Z y C-H
+ const nuevosTurnosVeterinaria = ['Z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+    const nuevosTurnosComercial = ['H', 'A', 'B', 'C', 'D', 'E', 'F', 'G'];
+
+    // Función para actualizar los turnos
+    function actualizarTurnos() {
+        // Obtener el contenedor de los turnos
+        const veterinariaContainer = document.getElementById('veterinaria-container');
+        const comercialContainer = document.getElementById('comercial-container');
+
+        // Obtener el índice del turno actual
+        const turnoActualVeterinaria = document.querySelector('#veterinaria-container .box2 > div:first-child p');
+        const turnoActualComercial = document.querySelector('#comercial-container .box2 p');
+
+        // Verificar si el turno actual es 'Z' o 'H'
+        const indiceActualVeterinaria = nuevosTurnosVeterinaria.indexOf(turnoActualVeterinaria.textContent.trim());
+        const indiceActualComercial = nuevosTurnosComercial.indexOf(turnoActualComercial.textContent.trim());
+
+        // Calcular el próximo índice
+        const proximoIndiceVeterinaria = (indiceActualVeterinaria + 1) % nuevosTurnosVeterinaria.length;
+        const proximoIndiceComercial = (indiceActualComercial + 1) % nuevosTurnosComercial.length;
+
+        // Actualizar los turnos
+        turnoActualVeterinaria.textContent = nuevosTurnosVeterinaria[proximoIndiceVeterinaria];
+        turnoActualComercial.textContent = nuevosTurnosComercial[proximoIndiceComercial];
+    }
+
+    // Llamar a la función cada 5 segundos
+    setInterval(actualizarTurnos, 5000);
+
+
         var fechaHoraActual = new Date();
 
 
@@ -384,14 +368,8 @@ $conn->close();
         console.log("La hora es mayor a 22. ");
         }
         
-        // Aquí vendría el código JavaScript que actualiza los datos del visor y los muestra en pantalla
-        // Función para actualizar la página cada 5 segundos
-        function actualizarPagina() {
-            location.reload();
-        }
 
-        // Actualizar la página cada 1 segundos
-        setTimeout(actualizarPagina, 4000);
-    </script>
+     
+</script>
 </body>
 </html>
