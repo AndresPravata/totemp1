@@ -226,25 +226,24 @@ $conn->close();
     <div id="turnos-container">
         <!-- Sección de Veterinaria -->
         <div id="veterinaria-container">
-            <div class="box2">
-                <div>
-                    <p class="box-turn" style="color: white;"><?php echo $turnos_actuales['veterinaria'][1]; ?> BOX 1</p>
-                </div>
-               
-                <div>
-                    <p class="box-turn" style="color: white;"><?php echo $turnos_actuales['veterinaria'][2]; ?> BOX 2</p>
-                </div>
-                <div>
-                    <p class="box-turn" style="color: white;"><?php echo $turnos_actuales['veterinaria'][3]; ?> BOX 3</p>
-                </div>
-            </div>
+    <div class="box2">
+        <div>
+            <p class="box-turn" style="color: white;" id="box1-turn"> BOX 1</p>
         </div>
+        <div>
+            <p class="box-turn" style="color: white;" id="box2-turn"> BOX 2</p>
+        </div>
+        <div>
+            <p class="box-turn" style="color: white;" id="box3-turn"> BOX 3</p>
+        </div>
+    </div>
+</div>
 
-        <!-- Sección de Comercial -->
-        <div id="comercial-container">
-            <div class="box2">
-            <p class="box-turn" style="color: white;"><?php echo $turnos_actuales['comercial']; ?> </p>
-            </div>
+<!-- Sección de Comercial -->
+<div id="comercial-container">
+    <div class="box2">
+        <p class="box-turn" style="color: white;" id="comercial-turn"> </p>
+    </div>
         </div>
     </div>
     <audio id="sound-box1">
@@ -262,63 +261,52 @@ $conn->close();
 <!-- Repite esto para todos los boxes -->
 
     <script>
-         function llamarUpdate() {
-        console.log("Ejecutando actualización de turnos...");
-
-        // Objeto XMLHttpRequest para realizar la llamada AJAX
-        var xhttp = new XMLHttpRequest();
-
-        // Configurar la llamada AJAX
-        xhttp.onreadystatechange = function() {
-            if (this.readyState === 4) {
-                if (this.status === 200) {
-                    
-                    // Actualizar los datos en la página con la respuesta recibida
-                    var response = JSON.parse(this.responseText);
-                    console.log(JSON.stringify(response, null, 2));
-                    // ... (código para actualizar los turnos en la página)
-                } else {
-                    console.log("Error al recibir la respuesta. Estado: " + this.status);
-                }
+    function llamarUpdate() {
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+            if (xhr.status === 200) {
+                var turnosActuales = JSON.parse(xhr.responseText);
+                // Actualiza los elementos en el DOM con los valores de turnosActuales
+                actualizarElementos(turnosActuales);
+                ejecutarSonido(turnosActuales);
+            } else {
+                console.log('Error al obtener los turnos actuales');
             }
-        };
+        }
+    };
+    xhr.open('GET', 'update_turns.php', true);
+    xhr.send();
+}
+
+function actualizarElementos(turnosActuales) {
+   
+    // Actualiza los elementos en el DOM con los valores de turnosActuales
+    document.getElementById('box1-turn').textContent = turnosActuales['veterinaria'][1] || 'Sin turno';
+    document.getElementById('box2-turn').textContent = turnosActuales['veterinaria'][2] || 'Sin turno';
+    document.getElementById('box3-turn').textContent = turnosActuales['veterinaria'][3] || 'Sin turno';
+    document.getElementById('comercial-turn').textContent = turnosActuales['comercial'] || 'Sin turno';
+}
+
+// Llamar a la función cada 2 segundos
+setInterval(llamarUpdate, 2000);
+var turnosViejos; // Al inicio, los turnos viejos son nulos
+
+function ejecutarSonido(turnosActuales) {
+    if ((JSON.stringify(turnosViejos))!==(JSON.stringify(turnosActuales))) {
+        // Los turnos actuales son diferentes de los turnos viejos
+        var sound = new Audio('http://localhost/p1/turno.mp3');
+        sound.play();
+        console.log("Entre en el if")
+    }
+    else{
         
-        xhttp.open("GET", "update_turns.php", true); // Cambiar la URL a la que devuelve los datos actualizados
-        xhttp.send();
     }
+    // Actualizar los turnos viejos con los nuevos turnos actuales
+    turnosViejos = turnosActuales;
+    console.log("Viejos "+JSON.stringify(turnosViejos) + " Actuales "+ JSON.stringify(turnosActuales))
 
-    // Llamar a la función cada 2 segundos
-    setInterval(llamarUpdate, 20000);
-
- // Arreglo con los nuevos valores de los turnos A-Z y C-H
- const nuevosTurnosVeterinaria = ['Z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
-    const nuevosTurnosComercial = ['H', 'A', 'B', 'C', 'D', 'E', 'F', 'G'];
-
-    // Función para actualizar los turnos
-    function actualizarTurnos() {
-        // Obtener el contenedor de los turnos
-        const veterinariaContainer = document.getElementById('veterinaria-container');
-        const comercialContainer = document.getElementById('comercial-container');
-
-        // Obtener el índice del turno actual
-        const turnoActualVeterinaria = document.querySelector('#veterinaria-container .box2 > div:first-child p');
-        const turnoActualComercial = document.querySelector('#comercial-container .box2 p');
-
-        // Verificar si el turno actual es 'Z' o 'H'
-        const indiceActualVeterinaria = nuevosTurnosVeterinaria.indexOf(turnoActualVeterinaria.textContent.trim());
-        const indiceActualComercial = nuevosTurnosComercial.indexOf(turnoActualComercial.textContent.trim());
-
-        // Calcular el próximo índice
-        const proximoIndiceVeterinaria = (indiceActualVeterinaria + 1) % nuevosTurnosVeterinaria.length;
-        const proximoIndiceComercial = (indiceActualComercial + 1) % nuevosTurnosComercial.length;
-
-        // Actualizar los turnos
-        turnoActualVeterinaria.textContent = nuevosTurnosVeterinaria[proximoIndiceVeterinaria];
-        turnoActualComercial.textContent = nuevosTurnosComercial[proximoIndiceComercial];
-    }
-
-    // Llamar a la función cada 5 segundos
-    setInterval(actualizarTurnos, 5000);
+}
 
 
         var fechaHoraActual = new Date();
