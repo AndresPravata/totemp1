@@ -45,6 +45,52 @@ $conn->close();
 <link rel="stylesheet" href="assets/css/main.css" />
     <noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
     <title>BOX 1</title>
+    <style>
+ /* Estilos para el contenedor de botones y el círculo de estado */
+.container {
+  display: flex; /* Usa flexbox para alinear los elementos horizontalmente */
+  align-items: center; /* Centra verticalmente los elementos */
+  justify-content: flex-start; /* Alinea los elementos a la izquierda */
+}
+
+.button-container {
+  display: flex;
+  gap: 10px; /* Espacio entre los botones */
+}
+
+/* Estilos para los botones (sin cambios) */
+.button {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: transparent;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+/* Estilos para el círculo de estado (sin cambios) */
+.status-container {
+  display: inline-block;
+  margin-left: 10px;
+}
+
+.status-circle {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: inline-block;
+  transition: background-color 0.3s ease;
+}
+
+.green {
+  background-color: #4caf50;
+}
+
+.red {
+  background-color: #f44336;
+}
+
+    </style>
 </head>
 <body>
    <!-- Wrapper -->
@@ -61,6 +107,18 @@ $conn->close();
             <!-- <p>A fully responsive site template designed by <a href="https://html5up.net">HTML5 UP</a> and released<br />
                 for free under the <a href="https://html5up.net/license">Creative Commons</a> license.</p> -->
             </div>
+           
+
+<body>
+<div class="container">
+  <div class="button-container">
+    <button class="button" id="presentButton">Presente</button>
+    <button class="button" id="absentButton">Ausente</button>
+  </div>
+  <div class="status-container">
+    <div class="status-circle" id="statusCircle"></div>
+  </div>
+</div>
             <div id="box1-current-turn"></div>
     <form method="post">
         <button type="submit" name="marcar_finalizado">Finalizar Turno</button>
@@ -68,6 +126,26 @@ $conn->close();
         </div>
 
     <script>
+
+// JavaScript para cambiar el color del círculo de estado
+const presentButton = document.getElementById("presentButton");
+  const absentButton = document.getElementById("absentButton");
+  const statusCircle = document.getElementById("statusCircle");
+
+  presentButton.addEventListener("click", () => {
+    statusCircle.classList.remove("red");
+    statusCircle.classList.add("green");
+  });
+
+  absentButton.addEventListener("click", () => {
+    statusCircle.classList.remove("green");
+    statusCircle.classList.add("red");
+  });
+ function actualizarVeterinario() {
+    // Coloca aquí el código que deseas ejecutar cuando se cambie el estado del checkbox
+}
+
+
         var box1CurrentTurn = <?php echo json_encode($box1CurrentTurn); ?>;
 
         function updateVisor() {

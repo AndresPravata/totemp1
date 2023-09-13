@@ -120,85 +120,120 @@ $conn->close();
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="stylesheet" href="assets/css/main.css" />
-    <noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
     
     <title>Visor de Turnos</title>
     
     <style>
-        body {
-        background-color: transparent;
-       
-    }
+body {
+    margin: 0;
+    overflow: hidden;
+}
 
-    /* Es
+.background-image {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background: url('veterinariaDrLuffi.png') center/cover no-repeat;
+    background-color: rgba(0, 0, 0, 0.5);
+}
 
-    /* Nuevos estilos para la disposición de los turnos en la parte inferior de la pantalla */
-    #turnos-container {
-        position: fixed;
-        bottom: 10px; /* Ajusta el margen inferior para controlar la distancia del borde inferior */
-        left: 0;
-        width: 100%;
-        display: flex;
-        justify-content: flex-end; /* Mover los elementos hacia la derecha */
-        text-align: center; /* Centrar el contenido horizontalmente */
-    }
+.carousel-item {
+    height: 40.5rem;
+    background: transparent;
+    margin-top: 16.20rem;
+    max-width: 100%;
+}
 
-    #comercial-container,
-    #veterinaria-container {
-        width: 45%;
-        border: none;
-        padding: 10px;
-        text-align: center; /* Centrar el contenido horizontalmente */
-        display: flex; /* Mostrar los elementos internos en línea */
-        flex-direction: column; /* Alinear los elementos internos en columna */
-        justify-content: center; /* Centrar los elementos internos verticalmente */
-        align-items: center; /* Centrar los elementos internos horizontalmente */
-    }
+.container {
+    position: relative;
+}
 
-    /* Nuevos estilos para la línea vertical */
-    .divider {
-        position: relative;
-        width: 5px;
-        height: 100%;
-        background-color: black;
-        margin: 0 auto; /* Centrar horizontalmente */
-    }
+/* Estilos para la disposición de los turnos en la parte inferior de la pantalla */
+#turnos-container {
+    position: fixed;
+    bottom: -2rem;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    text-align: center;
+}
 
-    .box-turn {
-        font-weight: bold;
-        font-size: 50px; /* Tamaño de fuente reducido */
-        margin: 5px 0; /* Margen superior e inferior para los turnos */
-    }
+#comercial-container,
+#veterinaria-container {
+    width: 45%;
+    border: none;
+    padding: 10px;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
-    /* Nuevos estilos para el Box 2 de Veterinaria */
-    #veterinaria-container .box2 {
-        display: flex; /* Mostrar los elementos internos en línea */
-        justify-content: space-between; /* Espaciado uniforme entre los elementos internos */
-        margin-top: 40px; /* Espacio entre Box 1 y Box 2 */
-        margin-bottom: 40px; /* Espacio inferior para separar de los turnos */
-    }
+.box-turn {
+    font-weight: bold;
+    font-size: 40px;
+    margin: 5px 0;
+}
 
-    /* Margen a la derecha del primer turno en Veterinaria */
-    #veterinaria-container .box2 > div:first-child {
-        margin-right: 60px; /* Ajusta este valor según sea necesario */
-    }
+/* Estilos para el Box 2 de Veterinaria */
+#veterinaria-container .box2 {
+    display: flex;
+    margin-top: 40px;
+    margin-bottom: 40px;
+}
 
-    /* Margen a la derecha del segundo turno en Veterinaria */
-    #veterinaria-container .box2 > div:last-child {
-        margin-left: 50px; /* Ajusta este valor según sea necesario */
-    }
+/* Estilo para cada turno individual en #veterinaria-container */
+#veterinaria-container .box2 > div {
+    display: flex;
+    margin-left: 1px !important; /* Ajusta el valor según sea necesario para cada elemento */
+}
 
-    #comercial-container {
-        display: flex;
-        align-items: center; /* Centrar verticalmente el contenido */
-        height: 235px; /* Ajusta esta altura según tus necesidades */
-    }
-    
+/* Estilos para los elementos individuales en #veterinaria-container */
+#veterinaria-container #box1-turn {
+    position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+#veterinaria-container #box2-turn {
+    position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+
+
+/* Estilo para comercial-turn en #comercial-container */
+#comercial-container #comercial-turn {
+    position: absolute;
+  top: 10px;
+  right: 10px;
+}
 </style>
 
 </head>
 <body>
+<div class="background-image"></div>
+  <div class="container">
+    <div id="miCarrusel" class="carousel slide" data-bs-ride="carousel">
+      <div class="carousel-inner">
+        <div class="carousel-item active">
+          <img src="slider1.jpg" class="d-block w-100" alt="...">
+        </div>
+        <div class="carousel-item">
+          <img src="slider2.jpg" class="d-block w-100" alt="...">
+        </div>
+        <div class="carousel-item">
+          <img src="slider3.jpg" class="d-block w-100" alt="...">
+        </div>
+      </div>
+    </div>
+  </div>
 
     <!-- Nueva sección para mostrar los turnos en la parte inferior de la pantalla -->
     <div id="turnos-container">
@@ -208,9 +243,11 @@ $conn->close();
         <div>
             <p class="box-turn" style="color: white;" id="box1-turn"> </p>
         </div>
+
         <div>
             <p class="box-turn" style="color: white;" id="box2-turn"> </p>
         </div>
+       
         <div>
             <p class="box-turn" style="color: white;" id="box3-turn"> </p>
         </div>
@@ -222,8 +259,7 @@ $conn->close();
     <div class="box2">
         <p class="box-turn" style="color: white;" id="comercial-turn"> </p>
     </div>
-        </div>
-    </div>
+    
     <audio id="sound-box1">
     <source src="turno.mp3" type="audio/mp3">
 </audio>
@@ -239,6 +275,7 @@ $conn->close();
 <!-- Repite esto para todos los boxes -->
 
     <script>
+        
     function llamarUpdate() {
     var xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function () {

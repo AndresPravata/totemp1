@@ -74,3 +74,33 @@
     </script>
 </body>
 </html>
+
+// Arreglo con los nuevos valores de los turnos A-Z y C-H
+const nuevosTurnosVeterinaria = ['Z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+   const nuevosTurnosComercial = ['H', 'A', 'B', 'C', 'D', 'E', 'F', 'G'];
+
+   // Función para actualizar los turnos
+   function actualizarTurnos() {
+       // Obtener el contenedor de los turnos
+       const veterinariaContainer = document.getElementById('veterinaria-container');
+       const comercialContainer = document.getElementById('comercial-container');
+
+       // Obtener el índice del turno actual
+       const turnoActualVeterinaria = document.querySelector('#veterinaria-container .box2 > div:first-child p');
+       const turnoActualComercial = document.querySelector('#comercial-container .box2 p');
+
+       // Verificar si el turno actual es 'Z' o 'H'
+       const indiceActualVeterinaria = nuevosTurnosVeterinaria.indexOf(turnoActualVeterinaria.textContent.trim());
+       const indiceActualComercial = nuevosTurnosComercial.indexOf(turnoActualComercial.textContent.trim());
+
+       // Calcular el próximo índice
+       const proximoIndiceVeterinaria = (indiceActualVeterinaria + 1) % nuevosTurnosVeterinaria.length;
+       const proximoIndiceComercial = (indiceActualComercial + 1) % nuevosTurnosComercial.length;
+
+       // Actualizar los turnos
+       turnoActualVeterinaria.textContent = nuevosTurnosVeterinaria[proximoIndiceVeterinaria];
+       turnoActualComercial.textContent = nuevosTurnosComercial[proximoIndiceComercial];
+   }
+
+   // Llamar a la función cada 5 segundos
+   setInterval(actualizarTurnos, 5000);
