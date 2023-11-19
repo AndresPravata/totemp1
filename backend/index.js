@@ -1,47 +1,57 @@
 import express from "express";
 import http from "http";
 import { Server as SocketServer } from "socket.io";
+import dotenv from "dotenv";
+import { configureSocketIO } from "./config/socket";
+import BoxRouter from "./routes/boxes";
+import TurnoRouter from "./routes/turnos";
+import VeterinarioRouter from "./routes/veterinarios";
+import TotemRouter from "./routes/totems";
+import swaggerUi from 'swagger-ui-express';
+import swaggerJSDoc from 'swagger-jsdoc';
+
+dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
 const io = new SocketServer(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: process.env.ORIGIN,
   },
 });
 
-let estadoVeterinario = "ausente";
-let estadoVeterinario2 = "ausente";
+configureSocketIO(io);
 
-io.on("connection", (socket) => {
-  // Enviar el estado actual de los veterinarios a cualquier cliente nuevo
-  socket.emit("estadoVeterinario", estadoVeterinario);
-  socket.emit("estadoVeterinario2", estadoVeterinario2);
+// Rutas
+app.use("/boxes", BoxRouter);
+app.use("/turnos", TurnoRouter);
+app.use("/veterinarios", VeterinarioRouter);
+app.use("/totems", TotemRouter);
 
-  socket.on("veterinarioPresente", () => {
-    estadoVeterinario = "presente";
-    io.emit("estadoVeterinario", estadoVeterinario);
-  });
+// Configuración de Swagger
+const swaggerOptions = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'API Documentation',
+      version: '1.0.0',
+      description: 'Documentation for your API',
+    },
+    servers: [
+      {
+        url: `http://localhost:${process.env.PORT_LISTEN || 5000}`,
+      },
+    ],
+  },
+  apis: ['./routes/*.js'], // Rutas a los archivos que contienen las definiciones de rutas
+};
 
-  socket.on("veterinarioAusente", () => {
-    estadoVeterinario = "ausente";
-    io.emit("estadoVeterinario", estadoVeterinario);
-  });
+const swaggerSpec = swaggerJSDoc(swaggerOptions);
 
-  socket.on("veterinario2Presente", () => {
-    estadoVeterinario2 = "presente";
-    io.emit("estadoVeterinario2", estadoVeterinario2);
-  });
+// Ruta para la documentación Swagger UI
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-  socket.on("veterinario2Ausente", () => {
-    estadoVeterinario2 = "ausente";
-    io.emit("estadoVeterinario2", estadoVeterinario2);
-  });
-});
-
-server.listen(5000);
-console.log("Server on port", 5000);
-
-app.get("/", (req, res) => {
-  return res.json("Jackson ");
+const PORT = process.env.PORT_LISTEN || 5000;
+server.listen(PORT, () => {
+  console.log(`Server listening on port ${PORT}`);
 });
