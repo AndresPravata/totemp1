@@ -10,6 +10,10 @@ export const sequelizeOnline = new Sequelize(
   {
     host: process.env.MYSQL_ONLINE_HOST,
     dialect: "mysql",
+    logging: false,
+    define: {
+      timestamps: true,
+    },
   }
 );
 
@@ -30,6 +34,10 @@ export const sequelizeLocal = new Sequelize(
   {
     host: process.env.MYSQL_LOCAL_HOST,
     dialect: "mysql",
+    logging: false,
+    define: {
+      timestamps: true,
+    },
   }
 );
 

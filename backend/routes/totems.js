@@ -1,5 +1,5 @@
 import express from "express";
-import Totem from "../models/Totem";
+import { Totem } from '../models/sequelize.js';
 
 const router = express.Router();
 

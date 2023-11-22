@@ -2,11 +2,11 @@ import express from "express";
 import http from "http";
 import { Server as SocketServer } from "socket.io";
 import dotenv from "dotenv";
-import { configureSocketIO } from "./config/socket";
-import BoxRouter from "./routes/boxes";
-import TurnoRouter from "./routes/turnos";
-import VeterinarioRouter from "./routes/veterinarios";
-import TotemRouter from "./routes/totems";
+import { configureSocketIO } from "./config/socket.js";
+import BoxRouter from "./routes/boxes.js";
+import TurnoRouter from "./routes/turnos.js";
+import VeterinarioRouter from "./routes/veterinarios.js";
+import TotemRouter from "./routes/totems.js";
 import swaggerUi from 'swagger-ui-express';
 import swaggerJSDoc from 'swagger-jsdoc';
 

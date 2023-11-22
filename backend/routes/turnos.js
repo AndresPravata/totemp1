@@ -1,7 +1,5 @@
 import express from "express";
-import Turno from "../models/Turno";
-import Box from "../models/Box";
-import Veterinario from "../models/Veterinario";
+import { Turno } from '../models/sequelize.js';
 
 const router = express.Router();
 
