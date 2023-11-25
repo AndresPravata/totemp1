@@ -7,21 +7,25 @@ const Visor = () => {
             Veterinaria
           </h2>
           <div className="rounded-2xl border-2 text-3xl border-white p-2 my-2 font-normal">
+            {/* GET del turno al que da inicio el veterinario 1 */}
             A1 BOX1
           </div>
           <div className="rounded-2xl border-2 text-3xl border-white p-2 my-2">
+            {/* GET del turno al que da inicio el veterinario 2*/}
             A3 BOX3
           </div>
         </div>
         <div className="flex flex-col">
           <h2 className="text-4xl mb-2 font-semibold uppercase">Ventas</h2>
           <div className="rounded-2xl border-2 text-3xl border-white p-2 my-2">
+            {/* GET del turno de ventas */}
             C1
           </div>
         </div>
         <div className="flex flex-col">
           <h2 className="text-4xl mb-2 font-semibold uppercase">Peluquería</h2>
           <div className="rounded-2xl border-2 text-3xl border-white p-2 my-2">
+            {/* GET del turno de peluquería. Acá creo que hay que obtenerlo desde la pagina. No me comentó nada más el Andrés */}
             P1 10:30
           </div>
         </div>

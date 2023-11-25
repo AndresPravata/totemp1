@@ -89,24 +89,29 @@ const Box2 = () => {
                   {/* Aca hay que reemplazar por las instancias en tiempo real de los turnos */}
                   <tr>
                     <td className="px-4 py-2 border-r-2 border-white text-center font-bold">
-                      A1
+                      {/*GET del turno actual 'No tiene que mostrar nada hasta que el veterinario inicie el turno'*/}
                     </td>
                     <td className="px-4 py-2 border-r-2 border-white text-center font-bold">
-                      A2
+                      {/*GET del turno en espera siguiente al turno que ya se inició*/}
                     </td>
-                    <td className="px-4 py-2 text-center font-bold">2</td>
+                    <td className="px-4 py-2 text-center font-bold">
+                      {/*GET de los turnos que hay en espera (.length)*/}
+                    </td>
                   </tr>
                 </tbody>
               </table>
             </div>
             <div className="flex gap-6 mt-6">
               <button className="p-3 rounded-lg text-slate-950 font-medium uppercase bg-blue-500">
+                {/* UPDATE del estado del turno a iniciado */}
                 Iniciar turno
               </button>
               <button className="p-3 rounded-lg text-slate-950 font-medium uppercase bg-yellow-300">
+                {/* UPDATE del estado del turno a finalizado */}
                 Finalizar turno
               </button>
               <button className="p-3 rounded-lg text-slate-950 font-medium uppercase bg-green-400">
+                {/* Acá no se bien que sería pero es para que el veterinario pase al siguiente turno. Creo que se deberia finalizar el turno que esta iniciado. */}
                 Siguiente
               </button>
             </div>

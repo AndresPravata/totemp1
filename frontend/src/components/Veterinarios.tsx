@@ -72,6 +72,7 @@ const Veterinarios = () => {
                   }
                 />
               </div>
+              {/* GET de los turnos que hay en espera */}
               <p className=" text-white">Turnos en espera:</p>
             </div>
             <div className="grid gap-3 items-start justify-center">
