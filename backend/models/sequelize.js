@@ -23,7 +23,11 @@ export const Box = sequelizeOnline.define(
 export const Totem = sequelizeLocal.define(
   "totem",
   {
+<<<<<<< HEAD
     id: {
+=======
+    id: { 
+>>>>>>> 8c3c2d3a9681e2d04745ed366f33448f01241c76
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
@@ -116,4 +120,8 @@ Veterinario.hasMany(Turno, {
   onDelete: "CASCADE",
 });
 
+<<<<<<< HEAD
 await sequelizeOnline.sync({ alter: true });
+=======
+await sequelizeOnline.sync();
+>>>>>>> 8c3c2d3a9681e2d04745ed366f33448f01241c76
