@@ -7,6 +7,7 @@ import {
   useEstadoVeterinario,
   useEstadoVeterinario2,
 } from "../hooks/useEstadoVeterinario";
+import axios from "axios";
 
 const Veterinarios = () => {
   const navigate = useNavigate();
@@ -15,6 +16,19 @@ const Veterinarios = () => {
 
   const estadoVeterinario = useEstadoVeterinario();
   const estadoVeterinario2 = useEstadoVeterinario2();
+
+  const postData = async (id: number, box: number, nombre_turno: string) => {
+    try {
+      const response = await axios.post(`http://127.0.0.1:5000/turnos/`, {
+        nombre_turno: nombre_turno,
+        numero_box: box,
+        veterinario_id: id,
+      });
+      console.log(response);
+    } catch (error) {
+      console.error("Error al obtener los turnos", error);
+    }
+  };
 
   useEffect(() => {
     const socket = io("http://localhost:5000");
@@ -26,10 +40,16 @@ const Veterinarios = () => {
   const handleVeterinario1 = () => {
     setVeterinario("1");
     localStorage.setItem("veterinario", "1"); // Guarda el estado en el LocalStorage
+
+    postData(1, 1, `A${turno} BOX1`);
+    setTurno(turno + 1);
   };
   const handleVeterinario2 = () => {
     setVeterinario("2");
     localStorage.setItem("veterinario", "2"); // Guarda el estado en el LocalStorage
+
+    postData(1, 1, `A${turno} BOX2`);
+    setTurno(turno + 1);
   };
 
   const handleImprimirTurno = () => {

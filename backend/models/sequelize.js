@@ -1,4 +1,4 @@
-import { DataTypes } from "sequelize";
+import { DataTypes, NOW } from "sequelize";
 import { sequelizeOnline } from "../config/databases.js";
 import { sequelizeLocal } from "../config/databases.js";
 
@@ -23,11 +23,7 @@ export const Box = sequelizeOnline.define(
 export const Totem = sequelizeLocal.define(
   "totem",
   {
-<<<<<<< HEAD
     id: {
-=======
-    id: { 
->>>>>>> 8c3c2d3a9681e2d04745ed366f33448f01241c76
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
@@ -68,7 +64,12 @@ export const Turno = sequelizeOnline.define(
     },
     nombre_turno: {
       type: DataTypes.STRING,
+      allowNull: false,
+    },
+    createdAt: {
+      type: DataTypes.DATE,
       allowNull: true,
+      defaultValue: DataTypes.NOW,
     },
     fecha_hora_inicio: {
       type: DataTypes.DATE,
@@ -76,11 +77,12 @@ export const Turno = sequelizeOnline.define(
     },
     fecha_hora_fin: {
       type: DataTypes.DATE,
-      allowNull: false,
+      allowNull: true,
     },
     estado: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
+      defaultValue: "Espera",
     },
   },
   {
@@ -95,6 +97,9 @@ export const Veterinario = sequelizeOnline.define(
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
+    },
+    nombre: {
+      type: DataTypes.STRING,
     },
   },
   {
@@ -120,8 +125,4 @@ Veterinario.hasMany(Turno, {
   onDelete: "CASCADE",
 });
 
-<<<<<<< HEAD
 await sequelizeOnline.sync({ alter: true });
-=======
-await sequelizeOnline.sync();
->>>>>>> 8c3c2d3a9681e2d04745ed366f33448f01241c76

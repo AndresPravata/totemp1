@@ -1,9 +1,77 @@
 import { useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
+import axios from "axios";
+
+export interface Turno {
+  id: number;
+  nombre_turno: string | null;
+  createdAt: Date;
+  fecha_hora_inicio: Date;
+  fecha_hora_fin: Date;
+  estado: string;
+}
+
+interface TurnoState {
+  actual: Turno | null;
+  siguiente: Turno | null;
+  espera: Turno | null;
+}
 
 const Box1 = () => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isPresent, setIsPresent] = useState(false);
+  const [turnoState, setTurnoState] = useState<TurnoState>({
+    actual: null,
+    siguiente: null,
+    espera: null,
+  });
+
+  const fetchData = async () => {
+    try {
+      const response = await axios.get(`http://127.0.0.1:5000/turnos/turnosBox/BOX1`);
+      setTurnoState({
+        actual: response.data[0],
+        siguiente: response.data[1],
+        espera: response.data[2],
+      });
+    } catch (error) {
+      console.error("Error al obtener los turnos", error);
+    }
+  };
+
+  const start = async () => {
+    try {
+      const response = await axios.put(
+        `http://127.0.0.1:5000/turnos/${
+          turnoState.actual == null ? 0 : turnoState.actual.id
+        }`,
+        {
+          fecha_hora_inicio: new Date(),
+          estado: "Iniciado",
+        }
+      );
+      setTurnoState({ ...turnoState, actual: response.data });
+    } catch (error) {
+      console.error("Error al actualizar el turno", error);
+    }
+  };
+
+  const end = async () => {
+    try {
+      const response = await axios.put(
+        `http://127.0.0.1:5000/turnos/${
+          turnoState.actual == null ? 0 : turnoState.actual.id
+        }`,
+        {
+          fecha_hora_fin: new Date(),
+          estado: "Finalizado",
+        }
+      );
+      setTurnoState({ ...turnoState, actual: response.data });
+    } catch (error) {
+      console.error("Error al actualizar el turno", error);
+    }
+  };
 
   useEffect(() => {
     // Al cargar el componente, verifica si hay un estado guardado en LocalStorage
@@ -11,6 +79,8 @@ const Box1 = () => {
     if (savedState) {
       setIsPresent(savedState === "true");
     }
+
+    fetchData();
   }, []);
 
   useEffect(() => {
@@ -87,28 +157,37 @@ const Box1 = () => {
                   {/* Aca hay que reemplazar por las instancias en tiempo real de los turnos */}
                   <tr>
                     <td className="px-4 py-2 border-r-2 border-white text-center font-bold">
-                      {/*GET del turno actual 'No tiene que mostrar nada hasta que el veterinario inicie el turno'*/}
+                      {turnoState.actual?.nombre_turno ?? "NULL"}
                     </td>
                     <td className="px-4 py-2 border-r-2 border-white text-center font-bold">
-                      {/*GET del turno en espera siguiente al turno que ya se inició*/}
+                      {turnoState.siguiente?.nombre_turno ?? "NULL"}
                     </td>
                     <td className="px-4 py-2 text-center font-bold">
-                      {/*GET de los turnos que hay en espera (.length)*/}
+                      {turnoState.espera?.nombre_turno ?? "NULL"}
                     </td>
                   </tr>
                 </tbody>
               </table>
             </div>
             <div className="flex gap-6 mt-6">
-              <button className="p-3 rounded-lg text-slate-950 font-medium uppercase bg-blue-500">
+              <button
+                className="p-3 rounded-lg text-slate-950 font-medium uppercase bg-blue-500"
+                onClick={() => start()}
+              >
                 {/* UPDATE del estado del turno a iniciado */}
                 Iniciar turno
               </button>
-              <button className="p-3 rounded-lg text-slate-950 font-medium uppercase bg-yellow-300">
+              <button
+                className="p-3 rounded-lg text-slate-950 font-medium uppercase bg-yellow-300"
+                onClick={() => end()}
+              >
                 {/* UPDATE del estado del turno a finalizado */}
                 Finalizar turno
               </button>
-              <button className="p-3 rounded-lg text-slate-950 font-medium uppercase bg-green-400">
+              <button
+                className="p-3 rounded-lg text-slate-950 font-medium uppercase bg-green-400"
+                onClick={() => fetchData()}
+              >
                 {/* Acá no se bien que sería pero es para que el veterinario pase al siguiente turno. Creo que se deberia finalizar el turno que esta iniciado. */}
                 Siguiente
               </button>
