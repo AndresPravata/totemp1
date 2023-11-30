@@ -1,4 +1,35 @@
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { Turno } from "./Box1";
+
+interface TurnoState {
+  Box1: Turno | null;
+  Box2: Turno | null;
+  Ventas: Turno | null;
+}
+
 const Visor = () => {
+  const [turnoState, setTurnoState] = useState<TurnoState>({
+    Box1: null,
+    Box2: null,
+    Ventas: null,
+  });
+
+  const fetchData = async () => {
+    try {
+      const response = await axios.get(
+        `http://127.0.0.1:5000/turnos/turnosVisor`
+      );
+      setTurnoState(response.data);
+    } catch (error) {
+      console.error("Error al obtener los turnos", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
   return (
     <div className="flex h-screen ">
       <div className="w-[20%] bg-gray-800 text-white p-4 overflow-hidden bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-slate-900 via-zinc-950 to-black text-center gap-12 flex flex-col">
@@ -8,18 +39,18 @@ const Visor = () => {
           </h2>
           <div className="rounded-2xl border-2 text-3xl border-white p-2 my-2 font-normal">
             {/* GET del turno al que da inicio el veterinario 1 */}
-            A1 BOX1
+            {turnoState.Box1?.nombre_turno ?? "NULL"}
           </div>
           <div className="rounded-2xl border-2 text-3xl border-white p-2 my-2">
             {/* GET del turno al que da inicio el veterinario 2*/}
-            A3 BOX3
+            {turnoState.Box2?.nombre_turno ?? "NULL"}
           </div>
         </div>
         <div className="flex flex-col">
           <h2 className="text-4xl mb-2 font-semibold uppercase">Ventas</h2>
           <div className="rounded-2xl border-2 text-3xl border-white p-2 my-2">
             {/* GET del turno de ventas */}
-            C1
+            {turnoState.Ventas?.nombre_turno ?? "NULL"}
           </div>
         </div>
         <div className="flex flex-col">

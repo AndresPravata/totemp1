@@ -10,6 +10,7 @@ import {
 } from "./hooks/useEstadoVeterinario";
 import Visor from "./components/Visor";
 import Home from "./components/Home";
+import { Toaster } from "react-hot-toast";
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
             <Route path="/box2" element={<Box2 />} />
             <Route path="/visor" element={<Visor />} />
           </Routes>
+          <Toaster />
         </BrowserRouter>
       </Veterinario2Provider>
     </VeterinarioProvider>
