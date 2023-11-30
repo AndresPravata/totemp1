@@ -17,8 +17,13 @@ const app = express();
 const server = http.createServer(app);
 const io = new SocketServer(server, {
   cors: {
+<<<<<<< HEAD
     // origin: process.env.ORIGIN,
     origin: "http://localhost:5173",
+=======
+    origin: process.env.ORIGIN,
+    // origin: "http://localhost:5173",
+>>>>>>> 0a0ba63d2a14ec45b1f4ef7d9a5cafaf67bfb9f4
   },
 });
 
