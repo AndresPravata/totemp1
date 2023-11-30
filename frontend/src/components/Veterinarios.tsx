@@ -140,7 +140,7 @@ const Veterinarios = () => {
       );
       conector.EscribirTexto(`BOX${veterinarioSelected.veterinario}`);
       conector.Feed(1);
-      const nombreImpresora = "NombreExactoImpresora";
+      const nombreImpresora = "POS-58";
       const respuesta = await conector.imprimirEn(nombreImpresora);
       if (respuesta === true) {
         console.log("Impreso correctamente");
