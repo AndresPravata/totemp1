@@ -14,28 +14,62 @@ export interface Turno {
 interface TurnoState {
   actual: Turno | null;
   siguiente: Turno | null;
-  espera: Turno | null;
 }
 
 const Box1 = () => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isPresent, setIsPresent] = useState(false);
+  const [cantidadState, setCantidadState] = useState(0);
   const [turnoState, setTurnoState] = useState<TurnoState>({
     actual: null,
     siguiente: null,
-    espera: null,
   });
 
   const fetchData = async () => {
     try {
-      const response = await axios.get(`http://127.0.0.1:5000/turnos/turnosBox/BOX1`);
+      const response = await axios.get(
+        `http://127.0.0.1:5000/turnos/turnosBox/BOX1`
+      );
+      const cantidad = await axios.get(
+        `http://127.0.0.1:5000/turnos/cantidadTurnos/1`
+      );
+
+      setCantidadState(cantidad.data);
+
+      console.log(response.data);
+
       setTurnoState({
         actual: response.data[0],
         siguiente: response.data[1],
-        espera: response.data[2],
       });
     } catch (error) {
       console.error("Error al obtener los turnos", error);
+    }
+  };
+
+  const next = async () => {
+    try {
+      const turnoActual = await axios.put(
+        `http://127.0.0.1:5000/turnos/${
+          turnoState.actual == null ? 0 : turnoState.actual.id
+        }`,
+        {
+          estado: "Finalizado",
+        }
+      );
+
+      const turnoSiguiente = await axios.put(
+        `http://127.0.0.1:5000/turnos/${
+          turnoState.siguiente == null ? 0 : turnoState.siguiente.id
+        }`,
+        {
+          estado: "Actual",
+        }
+      );
+
+      fetchData();
+    } catch (error) {
+      console.error("Error al actualizar el turno", error);
     }
   };
 
@@ -163,7 +197,7 @@ const Box1 = () => {
                       {turnoState.siguiente?.nombre_turno ?? "NULL"}
                     </td>
                     <td className="px-4 py-2 text-center font-bold">
-                      {turnoState.espera?.nombre_turno ?? "NULL"}
+                      {cantidadState ?? "NULL"}
                     </td>
                   </tr>
                 </tbody>
@@ -186,7 +220,7 @@ const Box1 = () => {
               </button>
               <button
                 className="p-3 rounded-lg text-slate-950 font-medium uppercase bg-green-400"
-                onClick={() => fetchData()}
+                onClick={() => next()}
               >
                 {/* Acá no se bien que sería pero es para que el veterinario pase al siguiente turno. Creo que se deberia finalizar el turno que esta iniciado. */}
                 Siguiente

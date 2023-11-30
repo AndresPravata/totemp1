@@ -17,18 +17,27 @@ router.get("/", async (req, res) => {
 
 router.get("/turnosBox/:filter", async (req, res) => {
   try {
-    const turnos = await Turno.findAll({
-      limit: 3, // Limitar la cantidad de registros a 3
+    const siguiente = await Turno.findOne({
       where: {
-        estado: "Espera", // LOS 3 ESTADOS POSIBLES SON: INICIADO, FINALIZADO, ESPERA
+        estado: "Espera", // LOS 3 ESTADOS POSIBLES SON: FINALIZADO, ACTUAL, ESPERA
         nombre_turno: {
           [Op.like]: `%${req.params.filter}%`, // FILTROS DISPONIBLES: BOX1, BOX2, C
         },
       },
-      order: [["createdAt", "DESC"]], // Ordenar por fecha de creación en orden descendente
+      order: [["createdAt", "ASC"]], // Ordenar por fecha de creación en orden descendente
     });
 
-    res.json(turnos);
+    const actual = await Turno.findOne({
+      where: {
+        estado: "Actual", // LOS 3 ESTADOS POSIBLES SON: FINALIZADO, ACTUAL, ESPERA
+        nombre_turno: {
+          [Op.like]: `%${req.params.filter}%`, // FILTROS DISPONIBLES: BOX1, BOX2, C
+        },
+      },
+      order: [["createdAt", "ASC"]], // Ordenar por fecha de creación en orden descendente
+    });
+
+    res.json([actual, siguiente]);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error al obtener los turnos" });
@@ -41,7 +50,7 @@ router.get("/turnosVisor", async (req, res) => {
       limit: 3, // Limitar la cantidad de registros a 3
       where: {
         estado: {
-          [Op.or]: ["Iniciado", "Ventas"],
+          [Op.or]: ["Actual", "Ventas"],
         },
         [Op.or]: [
           {
@@ -56,7 +65,7 @@ router.get("/turnosVisor", async (req, res) => {
       },
       order: [
         ["nombre_turno", "ASC"],
-        ["createdAt", "DESC"],
+        ["createdAt", "ASC"],
       ], // Ordenar por fecha de creación en orden descendente
     });
 
@@ -67,6 +76,24 @@ router.get("/turnosVisor", async (req, res) => {
     };
 
     res.json(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error al obtener los turnos" });
+  }
+});
+
+router.get("/cantidadTurnos/:num", async (req, res) => {
+  try {
+    const count = await Turno.count({
+      where: {
+        estado: "Espera",
+        nombre_turno: {
+          [Op.like]: `%BOX%${req.params.num}`,
+        },
+      },
+    });
+
+    res.json(count);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error al obtener los turnos" });
