@@ -8,6 +8,7 @@ import {
   useEstadoVeterinario2,
 } from "../hooks/useEstadoVeterinario";
 import axios from "axios";
+import { HOST, SOCKET } from "@/lib/utils";
 
 interface cantidadState {
   box1: number;
@@ -39,14 +40,14 @@ const Veterinarios = () => {
         (localStorage.getItem("turnoBox2") === "1" &&
           veterinarioSelected.veterinario === 2)
       ) {
-        const response = await axios.post(`http://127.0.0.1:5000/turnos/`, {
+        await axios.post(`${HOST}/turnos/`, {
           nombre_turno: nombre_turno,
           numero_box: box,
           veterinario_id: id,
           estado: "Actual",
         });
       } else {
-        const response = await axios.post(`http://127.0.0.1:5000/turnos/`, {
+        await axios.post(`${HOST}/turnos/`, {
           nombre_turno: nombre_turno,
           numero_box: box,
           veterinario_id: id,
@@ -60,10 +61,10 @@ const Veterinarios = () => {
   const fetchData = async () => {
     try {
       const box2Answer = await axios.get(
-        `http://127.0.0.1:5000/turnos/cantidadTurnos/2`
+        `${HOST}/turnos/cantidadTurnos/2`
       );
       const box1Answer = await axios.get(
-        `http://127.0.0.1:5000/turnos/cantidadTurnos/1`
+        `${HOST}/turnos/cantidadTurnos/1`
       );
 
       setCantidadState({
@@ -81,7 +82,7 @@ const Veterinarios = () => {
     }
 
     fetchData();
-    const socket = io("http://localhost:5000");
+    const socket = io(`${SOCKET}`);
     return () => {
       socket.disconnect();
     };

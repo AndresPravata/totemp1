@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Turno } from "./Box1";
+import { HOST } from "@/lib/utils";
 
 interface TurnoState {
   Box1: Turno | null;
@@ -18,7 +19,7 @@ const Visor = () => {
   const fetchData = async () => {
     try {
       const response = await axios.get(
-        `http://127.0.0.1:5000/turnos/turnosVisor`
+        `${HOST}/turnos/turnosVisor`
       );
       setTurnoState(response.data);
     } catch (error) {

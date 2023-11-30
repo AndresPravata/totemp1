@@ -1,3 +1,4 @@
+import { SOCKET } from "@/lib/utils";
 import {
   createContext,
   useContext,
@@ -20,7 +21,7 @@ export const VeterinarioProvider = ({ children }: VeterinarioProviderProps) => {
   const [estadoVeterinario, setEstadoVeterinario] = useState("ausente");
 
   useEffect(() => {
-    const socket = io("http://localhost:5000");
+    const socket = io(`${SOCKET}`);
 
     socket.on("estadoVeterinario", (estado) => {
       setEstadoVeterinario(estado);
@@ -53,7 +54,7 @@ export const Veterinario2Provider = ({
   const [estadoVeterinario2, setEstadoVeterinario2] = useState("ausente");
 
   useEffect(() => {
-    const socket = io("http://localhost:5000");
+    const socket = io(`${SOCKET}`);
 
     socket.on("estadoVeterinario2", (estado) => {
       setEstadoVeterinario2(estado);
