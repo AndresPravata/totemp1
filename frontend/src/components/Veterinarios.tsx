@@ -9,6 +9,8 @@ import {
 } from "../hooks/useEstadoVeterinario";
 import axios from "axios";
 import { HOST, SOCKET } from "@/lib/utils";
+import ConectorPluginV3 from "../plugins/conector";
+import toast from "react-hot-toast";
 
 interface cantidadState {
   box1: number;
@@ -16,14 +18,14 @@ interface cantidadState {
 }
 
 interface veterinarioSelectedState {
-  veterinario: number;
-  box: number;
+  veterinario: number | null;
+  box: number | null;
 }
 
 const Veterinarios = () => {
   const navigate = useNavigate();
   const [veterinarioSelected, setVeterinarioSelected] =
-    useState<veterinarioSelectedState>({ veterinario: 1, box: 1 });
+    useState<veterinarioSelectedState>({ veterinario: null, box: null });
   const [cantidadState, setCantidadState] = useState<cantidadState>({
     box1: 0,
     box2: 0,
@@ -89,32 +91,68 @@ const Veterinarios = () => {
   }, []);
 
   const handleVeterinario1 = () => {
-    setVeterinarioSelected({ veterinario: 1, box: 1 });
-    localStorage.setItem("veterinario", "1"); // Guarda el estado en el LocalStorage
-  };
-  const handleVeterinario2 = () => {
-    setVeterinarioSelected({ veterinario: 2, box: 2 });
-    localStorage.setItem("veterinario", "2"); // Guarda el estado en el LocalStorage
+    if (veterinarioSelected.veterinario === 1) {
+      setVeterinarioSelected({ veterinario: null, box: null });
+      localStorage.removeItem("veterinario");
+    } else {
+      setVeterinarioSelected({ veterinario: 1, box: 1 });
+      localStorage.setItem("veterinario", "1");
+    }
   };
 
-  const handleImprimirTurno = () => {
-    localStorage.setItem(
-      `turnoBox${veterinarioSelected.box}`,
-      String(
-        Number(
-          localStorage.getItem(`turnoBox${veterinarioSelected.box}`) ?? "0"
-        ) + 1
-      )
-    );
-    postData(
-      veterinarioSelected.veterinario,
-      veterinarioSelected.box,
-      `A${
-        localStorage.getItem(`turnoBox${veterinarioSelected.box}`) ?? "0"
-      } BOX${veterinarioSelected.box}`
-    );
-    navigate("/totem");
+  const handleVeterinario2 = () => {
+    if (veterinarioSelected.veterinario === 2) {
+      setVeterinarioSelected({ veterinario: null, box: null });
+      localStorage.removeItem("veterinario");
+    } else {
+      setVeterinarioSelected({ veterinario: 2, box: 2 });
+      localStorage.setItem("veterinario", "2");
+    }
   };
+
+  const handleImprimirTurno = async () => {
+    if (
+      veterinarioSelected.veterinario === null ||
+      veterinarioSelected.box === null
+    ) {
+      toast.error("Por favor elige un veterinario");
+    } else {
+      localStorage.setItem(
+        `turnoBox${veterinarioSelected.box}`,
+        String(
+          Number(
+            localStorage.getItem(`turnoBox${veterinarioSelected.box}`) ?? "0"
+          ) + 1
+        )
+      );
+      postData(
+        veterinarioSelected.veterinario,
+        veterinarioSelected.box,
+        `A${
+          localStorage.getItem(`turnoBox${veterinarioSelected.box}`) ?? "0"
+        } BOX${veterinarioSelected.box}`
+      );
+
+      const URLPlugin = "http://localhost:8000";
+      const conector = new ConectorPluginV3(URLPlugin);
+      conector.Iniciar();
+      conector.EscribirTexto(
+        `A${localStorage.getItem(`turnoBox${veterinarioSelected.box}`) ?? "0"}`
+      );
+      conector.EscribirTexto(`BOX${veterinarioSelected.veterinario}`);
+      conector.Feed(1);
+      const nombreImpresora = "POS-58";
+      const respuesta = await conector.imprimirEn(nombreImpresora);
+      if (respuesta === true) {
+        console.log("Impreso correctamente");
+      } else {
+        console.log("Error: " + respuesta);
+      }
+
+      navigate("/totem");
+    }
+  };
+
   return (
     <section className=" bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-slate-900 via-zinc-950 to-black w-full flex items-center mx-auto flex-col min-h-[100vh]">
       <article className=" w-full min-h-[100vh]">
@@ -145,9 +183,19 @@ const Veterinarios = () => {
                       : { border: "none" }
                   }
                 />
+                {estadoVeterinario === "ausente" && (
+                  <div className="absolute inset-0 flex p-4 justify-end">
+                    <span
+                      className="text-red-600 text-4xl font-bold"
+                      style={{ WebkitTextStroke: "1.5px black" }}
+                    >
+                      AUSENTE
+                    </span>
+                  </div>
+                )}
               </div>
               {/* GET de los turnos que hay en espera */}
-              <p className=" text-white">
+              <p className=" uppercase font-medium text-lg text-white">
                 Turnos en espera: {cantidadState.box1}
               </p>
             </div>
@@ -175,8 +223,18 @@ const Veterinarios = () => {
                       : { border: "none" }
                   }
                 />
+                {estadoVeterinario2 === "ausente" && (
+                  <div className="absolute inset-0 flex p-3 justify-start pr-11">
+                    <span
+                      className="text-red-600 text-4xl font-bold"
+                      style={{ WebkitTextStroke: "1.5px black" }}
+                    >
+                      AUSENTE
+                    </span>
+                  </div>
+                )}
               </div>
-              <p className="text-white mb-4 ">
+              <p className=" uppercase font-medium text-lg text-white mb-4 ">
                 Turnos en espera: {cantidadState.box2}
               </p>
             </div>
