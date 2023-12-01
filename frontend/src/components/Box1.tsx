@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import axios from "axios";
+import { HOST, SOCKET } from "@/lib/utils";
 
 export interface Turno {
   id: number;
@@ -28,15 +29,13 @@ const Box1 = () => {
   const fetchData = async () => {
     try {
       const response = await axios.get(
-        `http://127.0.0.1:5000/turnos/turnosBox/BOX1`
+        `${HOST}/turnos/turnosBox/BOX1`
       );
       const cantidad = await axios.get(
-        `http://127.0.0.1:5000/turnos/cantidadTurnos/1`
+        `${HOST}/turnos/cantidadTurnos/1`
       );
 
       setCantidadState(cantidad.data);
-
-      console.log(response.data);
 
       setTurnoState({
         actual: response.data[0],
@@ -49,8 +48,8 @@ const Box1 = () => {
 
   const next = async () => {
     try {
-      const turnoActual = await axios.put(
-        `http://127.0.0.1:5000/turnos/${
+      await axios.put(
+        `${HOST}/turnos/${
           turnoState.actual == null ? 0 : turnoState.actual.id
         }`,
         {
@@ -58,8 +57,8 @@ const Box1 = () => {
         }
       );
 
-      const turnoSiguiente = await axios.put(
-        `http://127.0.0.1:5000/turnos/${
+      await axios.put(
+        `${HOST}/turnos/${
           turnoState.siguiente == null ? 0 : turnoState.siguiente.id
         }`,
         {
@@ -76,7 +75,7 @@ const Box1 = () => {
   const start = async () => {
     try {
       const response = await axios.put(
-        `http://127.0.0.1:5000/turnos/${
+        `${HOST}/turnos/${
           turnoState.actual == null ? 0 : turnoState.actual.id
         }`,
         {
@@ -93,7 +92,7 @@ const Box1 = () => {
   const end = async () => {
     try {
       const response = await axios.put(
-        `http://127.0.0.1:5000/turnos/${
+        `${HOST}/turnos/${
           turnoState.actual == null ? 0 : turnoState.actual.id
         }`,
         {
@@ -119,7 +118,7 @@ const Box1 = () => {
 
   useEffect(() => {
     // Conectar al servidor WebSocket al cargar el componente
-    const socket = io("http://localhost:5000");
+    const socket = io(`${SOCKET}`);
 
     socket.on("estadoVeterinario", (estado) => {
       setIsPresent(estado === "presente");

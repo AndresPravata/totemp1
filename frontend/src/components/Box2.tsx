@@ -1,9 +1,104 @@
 import { useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
+import axios from "axios";
+import { Turno } from "./Box1";
+import { HOST, SOCKET } from "@/lib/utils";
+
+interface TurnoState {
+  actual: Turno | null;
+  siguiente: Turno | null;
+}
 
 const Box2 = () => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isPresent, setIsPresent] = useState(false);
+  const [cantidadState, setCantidadState] = useState(0);
+  const [turnoState, setTurnoState] = useState<TurnoState>({
+    actual: null,
+    siguiente: null,
+  });
+
+  const fetchData = async () => {
+    try {
+      const response = await axios.get(
+        `${HOST}/turnos/turnosBox/BOX2`
+      );
+      const cantidad = await axios.get(
+        `${HOST}/turnos/cantidadTurnos/2`
+      );
+
+      setCantidadState(cantidad.data);
+
+      console.log(response.data);
+
+      setTurnoState({
+        actual: response.data[0],
+        siguiente: response.data[1],
+      });
+    } catch (error) {
+      console.error("Error al obtener los turnos", error);
+    }
+  };
+
+  const next = async () => {
+    try {
+      await axios.put(
+        `${HOST}/turnos/${
+          turnoState.actual == null ? 0 : turnoState.actual.id
+        }`,
+        {
+          estado: "Finalizado",
+        }
+      );
+
+      await axios.put(
+        `${HOST}/turnos/${
+          turnoState.siguiente == null ? 0 : turnoState.siguiente.id
+        }`,
+        {
+          estado: "Actual",
+        }
+      );
+
+      fetchData();
+    } catch (error) {
+      console.error("Error al actualizar el turno", error);
+    }
+  };
+
+  const start = async () => {
+    try {
+      const response = await axios.put(
+        `${HOST}/turnos/${
+          turnoState.actual == null ? 0 : turnoState.actual.id
+        }`,
+        {
+          fecha_hora_inicio: new Date(),
+          estado: "Iniciado",
+        }
+      );
+      setTurnoState({ ...turnoState, actual: response.data });
+    } catch (error) {
+      console.error("Error al actualizar el turno", error);
+    }
+  };
+
+  const end = async () => {
+    try {
+      const response = await axios.put(
+        `${HOST}/turnos/${
+          turnoState.actual == null ? 0 : turnoState.actual.id
+        }`,
+        {
+          fecha_hora_fin: new Date(),
+          estado: "Finalizado",
+        }
+      );
+      setTurnoState({ ...turnoState, actual: response.data });
+    } catch (error) {
+      console.error("Error al actualizar el turno", error);
+    }
+  };
 
   useEffect(() => {
     // Al cargar el componente, verifica si hay un estado guardado en LocalStorage
@@ -11,11 +106,13 @@ const Box2 = () => {
     if (savedState) {
       setIsPresent(savedState === "true");
     }
+
+    fetchData();
   }, []);
 
   useEffect(() => {
     // Conectar al servidor WebSocket al cargar el componente
-    const socket = io("http://localhost:5000");
+    const socket = io(`${SOCKET}`);
 
     socket.on("estadoVeterinario2", (estado) => {
       setIsPresent(estado === "presente");
@@ -57,10 +154,8 @@ const Box2 = () => {
             <div className="flex gap-6">
               <button
                 onClick={handlePresentClick}
-                style={{
-                  backgroundColor: isPresent ? "green" : "grey",
-                }}
-                className="p-3 rounded-lg text-slate-950 font-medium uppercase "
+                style={{ backgroundColor: isPresent ? "green" : "grey" }}
+                className="p-3 rounded-lg text-slate-950 font-medium uppercase"
               >
                 Presente
               </button>
@@ -89,28 +184,37 @@ const Box2 = () => {
                   {/* Aca hay que reemplazar por las instancias en tiempo real de los turnos */}
                   <tr>
                     <td className="px-4 py-2 border-r-2 border-white text-center font-bold">
-                      {/*GET del turno actual 'No tiene que mostrar nada hasta que el veterinario inicie el turno'*/}
+                      {turnoState.actual?.nombre_turno ?? "NULL"}
                     </td>
                     <td className="px-4 py-2 border-r-2 border-white text-center font-bold">
-                      {/*GET del turno en espera siguiente al turno que ya se inició*/}
+                      {turnoState.siguiente?.nombre_turno ?? "NULL"}
                     </td>
                     <td className="px-4 py-2 text-center font-bold">
-                      {/*GET de los turnos que hay en espera (.length)*/}
+                      {cantidadState ?? "NULL"}
                     </td>
                   </tr>
                 </tbody>
               </table>
             </div>
             <div className="flex gap-6 mt-6">
-              <button className="p-3 rounded-lg text-slate-950 font-medium uppercase bg-blue-500">
+              <button
+                className="p-3 rounded-lg text-slate-950 font-medium uppercase bg-blue-500"
+                onClick={() => start()}
+              >
                 {/* UPDATE del estado del turno a iniciado */}
                 Iniciar turno
               </button>
-              <button className="p-3 rounded-lg text-slate-950 font-medium uppercase bg-yellow-300">
+              <button
+                className="p-3 rounded-lg text-slate-950 font-medium uppercase bg-yellow-300"
+                onClick={() => end()}
+              >
                 {/* UPDATE del estado del turno a finalizado */}
                 Finalizar turno
               </button>
-              <button className="p-3 rounded-lg text-slate-950 font-medium uppercase bg-green-400">
+              <button
+                className="p-3 rounded-lg text-slate-950 font-medium uppercase bg-green-400"
+                onClick={() => next()}
+              >
                 {/* Acá no se bien que sería pero es para que el veterinario pase al siguiente turno. Creo que se deberia finalizar el turno que esta iniciado. */}
                 Siguiente
               </button>

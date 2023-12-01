@@ -1,5 +1,6 @@
 import { Button } from "./ui/button";
 import { useNavigate } from "react-router-dom";
+import bgImage from "../assets/bg.jpg";
 
 const Totem = () => {
   const navigate = useNavigate();
@@ -12,7 +13,14 @@ const Totem = () => {
   };
 
   return (
-    <section className="overflow-hidden bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-slate-900 via-zinc-950 to-black w-full flex items-center mx-auto flex-col h-screen sm:px-16 px-6">
+    <section
+      className="overflow-hidden bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-slate-900 via-zinc-950 to-black w-full flex items-center mx-auto flex-col h-screen sm:px-16 px-6"
+      style={{
+        backgroundImage: `url(${bgImage})`,
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "cover",
+      }}
+    >
       <div className="flex flex-col gap-20">
         <div className="flex justify-center items-center flex-col gap-12 mt-6">
           <img
@@ -20,7 +28,10 @@ const Totem = () => {
             alt="logo"
             className="rounded-full w-60 h-60 object-cover"
           />
-          <h1 className=" text-white lg:text-[50px] sm:text-[40px] xs:text-[30px] text-[35px] font-bold uppercase text-center">
+          <h1
+            className=" text-white lg:text-[50px] sm:text-[45px] xs:text-[35px] text-[55px] font-bold uppercase text-center"
+            style={{ WebkitTextStroke: "2px black" }}
+          >
             Veterinaria Dr.Luffi
           </h1>
         </div>

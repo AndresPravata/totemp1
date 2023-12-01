@@ -8,8 +8,10 @@ import {
   useEstadoVeterinario2,
 } from "../hooks/useEstadoVeterinario";
 import axios from "axios";
+import { HOST, SOCKET } from "@/lib/utils";
 import ConectorPluginV3 from "../plugins/conector";
 import toast from "react-hot-toast";
+import bgImage from "../assets/bg.jpg";
 
 interface cantidadState {
   box1: number;
@@ -41,14 +43,14 @@ const Veterinarios = () => {
         (localStorage.getItem("turnoBox2") === "1" &&
           veterinarioSelected.veterinario === 2)
       ) {
-        const response = await axios.post(`http://127.0.0.1:5000/turnos/`, {
+        await axios.post(`${HOST}/turnos/`, {
           nombre_turno: nombre_turno,
           numero_box: box,
           veterinario_id: id,
           estado: "Actual",
         });
       } else {
-        const response = await axios.post(`http://127.0.0.1:5000/turnos/`, {
+        await axios.post(`${HOST}/turnos/`, {
           nombre_turno: nombre_turno,
           numero_box: box,
           veterinario_id: id,
@@ -61,12 +63,8 @@ const Veterinarios = () => {
 
   const fetchData = async () => {
     try {
-      const box2Answer = await axios.get(
-        `http://127.0.0.1:5000/turnos/cantidadTurnos/2`
-      );
-      const box1Answer = await axios.get(
-        `http://127.0.0.1:5000/turnos/cantidadTurnos/1`
-      );
+      const box2Answer = await axios.get(`${HOST}/turnos/cantidadTurnos/2`);
+      const box1Answer = await axios.get(`${HOST}/turnos/cantidadTurnos/1`);
 
       setCantidadState({
         box1: box1Answer.data,
@@ -83,7 +81,7 @@ const Veterinarios = () => {
     }
 
     fetchData();
-    const socket = io("http://localhost:5000");
+    const socket = io(`${SOCKET}`);
     return () => {
       socket.disconnect();
     };
@@ -110,57 +108,56 @@ const Veterinarios = () => {
   };
 
   const handleImprimirTurno = async () => {
-    if (
-      veterinarioSelected.veterinario === null ||
-      veterinarioSelected.box === null
+    let veterinarioSeleccionado = veterinarioSelected.veterinario;
+    if (estadoVeterinario === "presente" && estadoVeterinario2 === "ausente") {
+      veterinarioSeleccionado = 1;
+    } else if (
+      estadoVeterinario === "ausente" &&
+      estadoVeterinario2 === "presente"
     ) {
+      veterinarioSeleccionado = 2;
+    }
+
+    if (estadoVeterinario === "ausente" && estadoVeterinario2 === "ausente") {
+      toast.error("Los veterinarios están ausentes Espere por favor");
+    } else if (veterinarioSeleccionado === null) {
       toast.error("Por favor elige un veterinario");
     } else {
       localStorage.setItem(
-        `turnoBox${veterinarioSelected.box}`,
+        `turnoBox${veterinarioSeleccionado}`,
         String(
           Number(
-            localStorage.getItem(`turnoBox${veterinarioSelected.box}`) ?? "0"
+            localStorage.getItem(`turnoBox${veterinarioSeleccionado}`) ?? "0"
           ) + 1
         )
       );
       postData(
-        veterinarioSelected.veterinario,
-        veterinarioSelected.box,
+        veterinarioSeleccionado,
+        veterinarioSeleccionado,
         `A${
-          localStorage.getItem(`turnoBox${veterinarioSelected.box}`) ?? "0"
-        } BOX${veterinarioSelected.box}`
+          localStorage.getItem(`turnoBox${veterinarioSeleccionado}`) ?? "0"
+        } BOX${veterinarioSeleccionado}`
       );
-
-      const URLPlugin = "http://localhost:8000";
-      const conector = new ConectorPluginV3(URLPlugin);
-      conector.Iniciar();
-      conector.EscribirTexto(
-        `A${localStorage.getItem(`turnoBox${veterinarioSelected.box}`) ?? "0"}`
-      );
-      conector.EscribirTexto(`BOX${veterinarioSelected.veterinario}`);
-      conector.Feed(1);
-      const nombreImpresora = "POS-58";
-      const respuesta = await conector.imprimirEn(nombreImpresora);
-      if (respuesta === true) {
-        console.log("Impreso correctamente");
-      } else {
-        console.log("Error: " + respuesta);
-      }
-
       navigate("/totem");
     }
   };
 
   return (
-    <section className=" bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-slate-900 via-zinc-950 to-black w-full flex items-center mx-auto flex-col min-h-[100vh]">
+    <section
+      className=" bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-slate-900 via-zinc-950 to-black w-full flex items-center mx-auto flex-col min-h-[100vh]"
+      style={{
+        backgroundImage: `url(${bgImage})`,
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "cover",
+      }}
+    >
       <article className=" w-full min-h-[100vh]">
         <NavBar />
         <div className="flex flex-col gap-20 mt-8">
           <div className="flex items-center justify-center gap-6 flex-col">
             <div className="grid gap-3 items-start justify-center">
               <div className="relative group">
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-gray-600 to-sky-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-500 group-hover:duration-500  animate-tilt"></div>
+                {/* <div className="absolute -inset-0.5 bg-gradient-to-r from-gray-600 to-sky-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-500 group-hover:duration-500  animate-tilt"></div> */}
                 <img
                   src="veterinario1.png"
                   alt="veterinario 1"
@@ -194,13 +191,16 @@ const Veterinarios = () => {
                 )}
               </div>
               {/* GET de los turnos que hay en espera */}
-              <p className=" uppercase font-medium text-lg text-white">
+              <p
+                className=" uppercase font-bold text-2xl text-white"
+                style={{ WebkitTextStroke: "1.5px black" }}
+              >
                 Turnos en espera: {cantidadState.box1}
               </p>
             </div>
             <div className="grid gap-3 items-start justify-center">
               <div className="relative group">
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-gray-600 to-sky-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-500 group-hover:duration-500 animate-tilt"></div>
+                {/* <div className="absolute -inset-0.5 bg-gradient-to-r from-gray-600 to-sky-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-500 group-hover:duration-500 animate-tilt"></div> */}
                 <img
                   src="veterinario2.png"
                   alt="veterinario 2"
@@ -233,7 +233,10 @@ const Veterinarios = () => {
                   </div>
                 )}
               </div>
-              <p className=" uppercase font-medium text-lg text-white mb-4 ">
+              <p
+                className=" uppercase font-bold text-2xl text-white mb-4 "
+                style={{ WebkitTextStroke: "1.5px black" }}
+              >
                 Turnos en espera: {cantidadState.box2}
               </p>
             </div>
