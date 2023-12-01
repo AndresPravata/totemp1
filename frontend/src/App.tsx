@@ -11,6 +11,7 @@ import {
 import Visor from "./components/Visor";
 import Home from "./components/Home";
 import { Toaster } from "react-hot-toast";
+import Box4 from "./components/Box4";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
             <Route path="/ventas" element={<Ventas />} />
             <Route path="/box1" element={<Box1 />} />
             <Route path="/box2" element={<Box2 />} />
+            <Route path="/box4" element={<Box4 />} />
             <Route path="/visor" element={<Visor />} />
           </Routes>
           <Toaster />
