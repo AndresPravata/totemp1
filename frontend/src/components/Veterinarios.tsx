@@ -9,7 +9,6 @@ import {
 } from "../hooks/useEstadoVeterinario";
 import axios from "axios";
 import { HOST, SOCKET } from "@/lib/utils";
-import ConectorPluginV3 from "../plugins/conector";
 import toast from "react-hot-toast";
 import bgImage from "../assets/bg.jpg";
 
@@ -63,8 +62,12 @@ const Veterinarios = () => {
 
   const fetchData = async () => {
     try {
-      const box2Answer = await axios.get(`${HOST}/turnos/cantidadTurnos/2`);
-      const box1Answer = await axios.get(`${HOST}/turnos/cantidadTurnos/1`);
+      const box2Answer = await axios.get(
+        `http://127.0.0.1:5000/turnos/cantidadTurnos/2`
+      );
+      const box1Answer = await axios.get(
+        `http://127.0.0.1:5000/turnos/cantidadTurnos/1`
+      );
 
       setCantidadState({
         box1: box1Answer.data,
