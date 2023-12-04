@@ -26,10 +26,13 @@ const Box1 = () => {
     siguiente: null,
   });
 
+  console.log(socket);
+  console.log(isPresent);
+
   const fetchData = async () => {
     try {
-      const response = await axios.get(`${HOST}/turnos/turnosBox/BOX1`);
-      const cantidad = await axios.get(`${HOST}/turnos/cantidadTurnos/1`);
+      const response = await axios.get(`${HOST}/turnos/turnosBox/C`);
+      const cantidad = await axios.get(`${HOST}/turnos/cantidadTurnos/4`);
 
       setCantidadState(cantidad.data);
 
