@@ -1,7 +1,7 @@
 import express from "express";
 import { Turno } from "../models/sequelize.js";
 import { Op } from "sequelize";
-import printer from "printer";
+import { exec } from "child_process";
 
 const router = express.Router();
 
@@ -113,40 +113,25 @@ router.post("/", async (req, res) => {
       veterinario_id: req.body.veterinario_id,
     });
 
-    const printerName = "POS-58";
+    // Define los argumentos que deseas pasar al script de Python
+    const vendor = "valor1";
+    const product = "valor2";
+    const turno = "valor3";
 
-    // Ejemplo de texto a imprimir
-    const textToPrint = "Hello, world!\nThis is a sample text from Node.js.\n";
+    // Comando para ejecutar el script de Python con argumentos
+    const pythonScriptPath = "../Script/print_script.py";
+    const pythonCommand = `python ${pythonScriptPath} ${vendor} ${product} ${turno}`;
 
-    // Lista de impresoras disponibles
-    const printers = printer.getPrinters();
-    /*
-    // Busca la impresora por nombre
-    const selectedPrinter = printers.find((p) => p.name === printerName);
-
-    // Verifica si la impresora existe
-    if (!selectedPrinter) {
-      console.error(`La impresora '${printerName}' no se encontró.`);
-      process.exit(1);
-    }
-
-    // Configuración de la impresora
-    const options = {
-      printer: selectedPrinter.name,
-      data: textToPrint,
-      type: "TEXT",
-    };
-
-    // Imprime el texto
-    printer.printDirect(options, (err) => {
-      if (err) {
-        console.error(err);
-      } else {
-        console.log("Impresión exitosa.");
+    // Ejecutar el comando
+    exec(pythonCommand, (error, stdout, stderr) => {
+      if (error) {
+        console.error(`Error al ejecutar el script: ${error}`);
+        return;
       }
+      console.log(`Resultado del script: ${stdout}`);
     });
-    */
-    res.json(printers);
+
+    res.json(nuevoTurno);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error al crear el turno" });
