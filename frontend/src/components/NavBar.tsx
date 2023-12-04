@@ -11,8 +11,11 @@ const NavBar = () => {
     <nav className="bg-transparent w-full ">
       <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
         <div className="flex gap-3 justify-center items-center">
-          <img src="logo.svg" className="h-10 w-10" alt="Flowbite Logo" />
-          <span className="text-md sm:text-xl  font-semibold whitespace-nowrap text-white uppercase">
+          <img src="logo.svg" className="h-14 w-14" alt="Flowbite Logo" />
+          <span
+            className="text-md sm:text-2xl font-bold whitespace-nowrap text-white uppercase"
+            style={{ WebkitTextStroke: "1.5px black" }}
+          >
             Veterinaria Dr.Luffi
           </span>
         </div>
