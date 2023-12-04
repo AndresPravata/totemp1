@@ -1,6 +1,7 @@
 import express from "express";
 import { Turno } from "../models/sequelize.js";
 import { Op } from "sequelize";
+import printer from "printer";
 
 const router = express.Router();
 
@@ -111,7 +112,41 @@ router.post("/", async (req, res) => {
       numero_box: req.body.numero_box,
       veterinario_id: req.body.veterinario_id,
     });
-    res.json(nuevoTurno);
+
+    const printerName = "POS-58";
+
+    // Ejemplo de texto a imprimir
+    const textToPrint = "Hello, world!\nThis is a sample text from Node.js.\n";
+
+    // Lista de impresoras disponibles
+    const printers = printer.getPrinters();
+    /*
+    // Busca la impresora por nombre
+    const selectedPrinter = printers.find((p) => p.name === printerName);
+
+    // Verifica si la impresora existe
+    if (!selectedPrinter) {
+      console.error(`La impresora '${printerName}' no se encontró.`);
+      process.exit(1);
+    }
+
+    // Configuración de la impresora
+    const options = {
+      printer: selectedPrinter.name,
+      data: textToPrint,
+      type: "TEXT",
+    };
+
+    // Imprime el texto
+    printer.printDirect(options, (err) => {
+      if (err) {
+        console.error(err);
+      } else {
+        console.log("Impresión exitosa.");
+      }
+    });
+    */
+    res.json(printers);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error al crear el turno" });
