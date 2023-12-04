@@ -9,7 +9,6 @@ import {
 } from "../hooks/useEstadoVeterinario";
 import axios from "axios";
 import { HOST, SOCKET } from "@/lib/utils";
-import ConectorPluginV3 from "../plugins/conector";
 import toast from "react-hot-toast";
 
 interface cantidadState {
@@ -62,12 +61,8 @@ const Veterinarios = () => {
 
   const fetchData = async () => {
     try {
-      const box2Answer = await axios.get(
-        `${HOST}/turnos/cantidadTurnos/2`
-      );
-      const box1Answer = await axios.get(
-        `${HOST}/turnos/cantidadTurnos/1`
-      );
+      const box2Answer = await axios.get(`${HOST}/turnos/cantidadTurnos/2`);
+      const box1Answer = await axios.get(`${HOST}/turnos/cantidadTurnos/1`);
 
       setCantidadState({
         box1: box1Answer.data,
@@ -132,22 +127,6 @@ const Veterinarios = () => {
           localStorage.getItem(`turnoBox${veterinarioSelected.box}`) ?? "0"
         } BOX${veterinarioSelected.box}`
       );
-
-      const URLPlugin = "http://localhost:8000";
-      const conector = new ConectorPluginV3(URLPlugin);
-      conector.Iniciar();
-      conector.EscribirTexto(
-        `A${localStorage.getItem(`turnoBox${veterinarioSelected.box}`) ?? "0"}`
-      );
-      conector.EscribirTexto(`BOX${veterinarioSelected.veterinario}`);
-      conector.Feed(1);
-      const nombreImpresora = "POS-58";
-      const respuesta = await conector.imprimirEn(nombreImpresora);
-      if (respuesta === true) {
-        console.log("Impreso correctamente");
-      } else {
-        console.log("Error: " + respuesta);
-      }
 
       navigate("/totem");
     }
