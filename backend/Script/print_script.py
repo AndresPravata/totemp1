@@ -1,82 +1,64 @@
-""" from escpos.printer import Usb
+from datetime import datetime
 import sys
-
-def imprimir_texto(vendor, product, turno):
-    # Conectarse a la impresora POS a través de USB
-    p = Usb(vendor, product, 0)
-
-    # Enviar comandos ESC/POS para imprimir texto
-    p.text(f"Este es el turno: {turno}\n")
-
-    # Cortar el papel (esto puede variar según la impresora)
-    p.cut()
-
-    # Cerrar la conexión con la impresora
-    p.close()
-
-if __name__ == "__main__":
-    # Obtener argumentos de la línea de comandos
-    if len(sys.argv) != 4:
-        print("Por favor, proporciona tres argumentos.")
-        sys.exit(1)
-
-    vendor = sys.argv[1]
-    product = sys.argv[2]
-    turno = sys.argv[3]
-
-    # Llamar a la función con los argumentos proporcionados
-    imprimir_texto(vendor, product, turno)
- """
-
-
 import win32print
-from escpos.printer import Usb, Network
-from escpos.exceptions import USBNotFoundError
+import win32con
+from PIL import Image
 
-def listar_impresoras_usb():
+def imprimir_template_pos58(impresora_nombre, turno_actual):
+    try:
+        # Abrir la impresora
+        hPrinter = win32print.OpenPrinter(impresora_nombre)
+
+        # Iniciar el documento
+        win32print.StartDocPrinter(hPrinter, 1, ('Documento de prueba', None, 'RAW'))
+
+        # Iniciar la página
+        win32print.StartPagePrinter(hPrinter)
+
+        # Encabezado
+        header_text = "\nVeterinaria Luffi\n"
+        win32print.WritePrinter(hPrinter, header_text.encode('utf-8'))
+
+        # Dirección y Teléfono
+        address_text = "Direccion: Cnel. Suarez 451\nTel: 0260 459-9286\n\n"
+        win32print.WritePrinter(hPrinter, address_text.encode('utf-8'))
+
+        # Turno
+        turno_string = "Turno:\n" + str(turno_actual) + "\n"
+        win32print.WritePrinter(hPrinter, turno_string.encode('utf-8'))
+
+        # Fecha
+        date_string = "Fecha: " + datetime.now().strftime("%Y-%m-%d %H:%M:%S") + "\n"
+        win32print.WritePrinter(hPrinter, date_string.encode('utf-8'))
+        win32print.WritePrinter(hPrinter, "\n\n\n".encode('utf-8'))
+
+        # Finalizar la página y el documento
+        win32print.EndPagePrinter(hPrinter)
+        win32print.EndDocPrinter(hPrinter)
+
+        # Cerrar la impresora
+        win32print.ClosePrinter(hPrinter)
+    except Exception as e:
+        print(f"Error al imprimir: {e}")
+
+def listar_impresoras():
     try:
         # Obtener la lista de impresoras instaladas en el sistema
-        impresoras_instaladas = [printer[2] for printer in win32print.EnumPrinters(2)]
+        impresoras_instaladas = [printer[2] for printer in win32print.EnumPrinters(2, None, 1)]
 
-        # Filtrar y mostrar solo las impresoras USB
-        print("Impresoras USB disponibles:")
+        # Filtrar e imprimir solo las impresoras que comienzan con "POS"
+        print("Impresoras POS disponibles:")
+        impresora_seleccionada = ""
         for impresora in impresoras_instaladas:
-            if "USB" in impresora.upper():
+            if impresora.upper().startswith("POS"):
+                impresora_seleccionada = impresora
                 print(impresora)
+                break
+        return impresora_seleccionada
     except Exception as e:
         print(f"Error al listar impresoras: {e}")
 
-def imprimir_texto(impresora_seleccionada):
-    try:
-        # Conectar a la impresora seleccionada
-        if impresora_seleccionada.upper().startswith("USB:"):
-            # Obtener el nombre de la impresora USB
-            usb_printer_name = impresora_seleccionada.split("USB:")[1].strip()
-            p = Usb(0x0416, 0x5011, 0, 0x81, 0x03, profile=usb_printer_name)
-        else:
-            # Aquí podrías ajustar según tu impresora de red
-            p = Network(impresora_seleccionada)
-
-        # Enviar comandos ESC/POS para imprimir texto
-        p.text("Hola, esta es una prueba de impresión en una impresora POS.\n")
-        p.text("¡Gracias por utilizar nuestro servicio!\n")
-
-        # Cortar el papel (esto puede variar según la impresora)
-        p.cut()
-
-        # Cerrar la conexión con la impresora
-        p.close()
-    except USBNotFoundError as e:
-        print(f"Error al imprimir: {e}")
-    except Exception as e:
-        print(f"Error al imprimir: {e}")
-
 if __name__ == "__main__":
-    # Listar impresoras USB disponibles en Windows
-    listar_impresoras_usb()
+    turno = sys.argv[1] if len(sys.argv) > 1 else "valor_predeterminado"
 
-    # Solicitar al usuario que ingrese el nombre de la impresora
-    impresora_seleccionada = input("Ingrese el nombre completo de la impresora que desea utilizar: ")
-
-    # Imprimir texto en la impresora seleccionada
-    imprimir_texto(impresora_seleccionada)
+    imprimir_template_pos58(listar_impresoras(), turno)

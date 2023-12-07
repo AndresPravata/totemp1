@@ -1,7 +1,7 @@
 import express from "express";
 import { Turno } from "../models/sequelize.js";
 import { Op } from "sequelize";
-import { exec } from "child_process";
+import { spawn } from "child_process";
 
 const router = express.Router();
 
@@ -114,24 +114,27 @@ router.post("/", async (req, res) => {
     });
 
     // Define los argumentos que deseas pasar al script de Python
-    const vendor = "valor1";
-    const product = "valor2";
-    const turno = "valor3";
+    const turno = req.body.nombre_turno;
 
     // Comando para ejecutar el script de Python con argumentos
-    const pythonScriptPath = "../Script/print_script.py";
-    const pythonCommand = `python ${pythonScriptPath} ${vendor} ${product} ${turno}`;
+    const pythonScriptPath = "./Script/print_script.py";
+    const pythonProcess = spawn("python", [pythonScriptPath, turno]);
 
-    // Ejecutar el comando
-    exec(pythonCommand, (error, stdout, stderr) => {
-      if (error) {
-        console.error(`Error al ejecutar el script: ${error}`);
-        return;
-      }
-      console.log(`Resultado del script: ${stdout}`);
+    pythonProcess.stdout.on("data", (data) => {
+      console.log(`Resultado del script: ${data}`);
+      res.status(200).json({ resultado: data.toString() });
     });
 
-    res.json(nuevoTurno);
+    pythonProcess.stderr.on("data", (data) => {
+      console.error(`Error en la salida estándar de error: ${data}`);
+      res.status(500).json({ error: data.toString() });
+    });
+
+    pythonProcess.on("close", (code) => {
+      console.log(`Proceso de Python cerrado con código de salida ${code}`);
+    });
+
+    res.status(200).json({ nuevoTurno });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error al crear el turno" });
