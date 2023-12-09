@@ -129,12 +129,14 @@ const Box2 = () => {
     });
 
     socket.on("consultarBox", (boxState) => {
-      console.log(boxState);
-      setTurnoState({
-        actual: boxState[0],
-        siguiente: boxState[1],
-      });
-      setCantidadState(boxState[2]);
+      if (boxState[3] == 2) {
+        console.log(boxState);
+        setTurnoState({
+          actual: boxState[0],
+          siguiente: boxState[1],
+        });
+        setCantidadState(boxState[2]);
+      }
     });
 
     setSocket(socket);

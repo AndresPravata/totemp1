@@ -130,12 +130,13 @@ const Veterinarios = () => {
       await postData(
         veterinarioSeleccionado,
         veterinarioSeleccionado,
-        `A${
+        `${veterinarioSeleccionado === 1 ? "A" : "B"}${
           localStorage.getItem(`turnoBox${veterinarioSelected.box}`) ?? "0"
         } BOX${veterinarioSelected.box}`
       );
       const box = `BOX${veterinarioSelected.box}`;
       socket.emit("actualizarBox", { box });
+      socket.emit("actualizarTurnos");
 
       navigate("/totem");
     }

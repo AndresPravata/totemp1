@@ -12,20 +12,18 @@ const Ventas = () => {
   const navigate = useNavigate();
   const [cantidadState, setCantidadState] = useState<number>(0);
 
-  const postData = async (id: number, box: number, nombre_turno: string) => {
+  const postData = async (box: number, nombre_turno: string) => {
     try {
-      if (localStorage.getItem("turnoBox4") === "1") {
+      if (localStorage.getItem("turnoBox4") == "1") {
         await axios.post(`${HOST}/turnos/`, {
           nombre_turno: nombre_turno,
           numero_box: box,
-          veterinario_id: id,
           estado: "Actual",
         });
       } else {
         await axios.post(`${HOST}/turnos/`, {
           nombre_turno: nombre_turno,
           numero_box: box,
-          veterinario_id: id,
         });
       }
     } catch (error) {
@@ -59,9 +57,10 @@ const Ventas = () => {
       String(Number(localStorage.getItem(`turnoBox4`) ?? "0") + 1)
     );
 
-    await postData(4, 4, `C${localStorage.getItem(`turnoBox4`) ?? "0"} BOX4`);
+    await postData(4, `C${localStorage.getItem(`turnoBox4`) ?? "0"} BOX4`);
     const box = `C`;
     socket.emit("actualizarBox", { box });
+    socket.emit("actualizarTurnos");
 
     navigate("/totem");
   };

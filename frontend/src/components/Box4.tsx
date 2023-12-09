@@ -26,9 +26,6 @@ const Box4 = () => {
     siguiente: null,
   });
 
-  console.log(socket);
-  console.log(isPresent);
-
   const fetchData = async () => {
     try {
       const response = await axios.get(`${HOST}/turnos/turnosBox/C`);
@@ -139,11 +136,14 @@ const Box4 = () => {
 
     socket.on("consultarBox", (boxState) => {
       console.log(boxState);
-      setTurnoState({
-        actual: boxState[0],
-        siguiente: boxState[1],
-      });
-      setCantidadState(boxState[2]);
+      if (boxState[3] == "C") {
+        console.log(boxState);
+        setTurnoState({
+          actual: boxState[0],
+          siguiente: boxState[1],
+        });
+        setCantidadState(boxState[2]);
+      }
     });
 
     setSocket(socket);

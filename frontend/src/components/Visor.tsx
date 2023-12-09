@@ -72,7 +72,7 @@ const Visor = () => {
           <h2 className="text-4xl mb-2 font-semibold uppercase">Ventas</h2>
           <div className="rounded-2xl border-2 text-3xl border-white p-2 my-2">
             {/* GET del turno de ventas */}
-            {turnoState.Ventas?.nombre_turno ?? "NULL"}
+            {turnoState.Ventas?.nombre_turno?.substring(0, 2) ?? "NULL"}
           </div>
         </div>
         <div className="flex flex-col">

@@ -24,9 +24,9 @@ export function configureSocketIO(io) {
       const siguiente = await obtenerSiguienteTurno(box);
       const boxNum = box[box.length - 1];
       console.log(boxNum);
-      const cantidad = await obtenerCantidadBox(boxNum);
+      const cantidad = await obtenerCantidadBox(boxNum == "C" ? 4 : boxNum);
   
-      io.emit("consultarBox", [actual, siguiente, cantidad]);
+      io.emit("consultarBox", [actual, siguiente, cantidad, boxNum]);
       console.log("Respuesta enviada a 'consultarBox'");
     });
 
