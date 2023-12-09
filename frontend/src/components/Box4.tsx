@@ -19,7 +19,6 @@ interface TurnoState {
 
 const Box4 = () => {
   const [socket, setSocket] = useState<Socket | null>(null);
-  const [isPresent, setIsPresent] = useState(false);
   const [cantidadState, setCantidadState] = useState(0);
   const [turnoState, setTurnoState] = useState<TurnoState>({
     actual: null,
@@ -115,24 +114,12 @@ const Box4 = () => {
   };
 
   useEffect(() => {
-    // Al cargar el componente, verifica si hay un estado guardado en LocalStorage
-    const savedState = localStorage.getItem("veterinarioPresente");
-    if (savedState) {
-      setIsPresent(savedState === "true");
-    }
-
     fetchData();
   }, []);
 
   useEffect(() => {
     // Conectar al servidor WebSocket al cargar el componente
     const socket = io(`${SOCKET}`);
-
-    socket.on("estadoVeterinario", (estado) => {
-      setIsPresent(estado === "presente");
-      // Guardar el estado en LocalStorage
-      localStorage.setItem("veterinarioPresente", estado);
-    });
 
     socket.on("consultarBox", (boxState) => {
       console.log(boxState);
