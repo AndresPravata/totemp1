@@ -49,4 +49,19 @@
 
 5. Copiar la carpeta "dist" que se creo con el comando anterior en la siguiente ruta: "C:\xampp\htdocs"
 
-6. Finalmente iniciar los servicios de apache y mysql en xampp. (la url de la pagina es "veterinaria.local")
+6. Ingresar dentro de la carpeta "dist", una vez dentro creamos un archivo con el nombre ".htaccess"
+
+   - Una vez alli, Copiamos y pegamos lo siguiente:
+
+     ```
+    <IfModule mod_rewrite.c>
+        RewriteEngine On
+        RewriteBase /
+        RewriteRule ^index\.html$ - [L]
+        RewriteCond %{REQUEST_FILENAME} !-f
+        RewriteCond %{REQUEST_FILENAME} !-d
+        RewriteRule . /index.html [L]
+    </IfModule>
+     ```
+
+7. Finalmente iniciar los servicios de apache y mysql en xampp. (la url de la pagina es "veterinaria.local")

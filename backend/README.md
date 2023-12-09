@@ -48,6 +48,12 @@ MYSQL_ONLINE_DATABASE=
 PORT_LISTEN=
 ```
 
+4. Instala las dependencias del Script en python (debes estar situado en el directorio "Scripts"):
+
+```python
+pip install -r requirements.txt
+```
+
 4. Ejecuta el proyecto en la carpeta raiz:
 
 ```bash
