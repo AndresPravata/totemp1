@@ -23,6 +23,7 @@ interface veterinarioSelectedState {
 }
 
 const Veterinarios = () => {
+  const socket = io(`${SOCKET}`);
   const navigate = useNavigate();
   const [veterinarioSelected, setVeterinarioSelected] =
     useState<veterinarioSelectedState>({ veterinario: null, box: null });
@@ -80,10 +81,6 @@ const Veterinarios = () => {
     }
 
     fetchData();
-    const socket = io(`${SOCKET}`);
-    return () => {
-      socket.disconnect();
-    };
   }, []);
 
   const handleVeterinario1 = () => {
@@ -130,14 +127,16 @@ const Veterinarios = () => {
           ) + 1
         )
       );
-      postData(
+      await postData(
         veterinarioSeleccionado,
         veterinarioSeleccionado,
         `A${
           localStorage.getItem(`turnoBox${veterinarioSelected.box}`) ?? "0"
         } BOX${veterinarioSelected.box}`
       );
-      
+      const box = `BOX${veterinarioSelected.box}`;
+      socket.emit("actualizarBox", { box });
+
       navigate("/totem");
     }
   };

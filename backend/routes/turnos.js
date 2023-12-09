@@ -2,6 +2,12 @@ import express from "express";
 import { Turno } from "../models/sequelize.js";
 import { Op } from "sequelize";
 import { spawn } from "child_process";
+import {
+  obtenerActualTurno,
+  obtenerCantidadBox,
+  obtenerInformacionTurno,
+  obtenerSiguienteTurno,
+} from "../helpers/helpers.js";
 
 const router = express.Router();
 
@@ -18,25 +24,11 @@ router.get("/", async (req, res) => {
 
 router.get("/turnosBox/:filter", async (req, res) => {
   try {
-    const siguiente = await Turno.findOne({
-      where: {
-        estado: "Espera", // LOS 3 ESTADOS POSIBLES SON: FINALIZADO, ACTUAL, ESPERA
-        nombre_turno: {
-          [Op.like]: `%${req.params.filter}%`, // FILTROS DISPONIBLES: BOX1, BOX2, C
-        },
-      },
-      order: [["createdAt", "ASC"]], // Ordenar por fecha de creación en orden descendente
-    });
+    const filter = req.params.filter;
 
-    const actual = await Turno.findOne({
-      where: {
-        estado: "Actual", // LOS 3 ESTADOS POSIBLES SON: FINALIZADO, ACTUAL, ESPERA
-        nombre_turno: {
-          [Op.like]: `%${req.params.filter}%`, // FILTROS DISPONIBLES: BOX1, BOX2, C
-        },
-      },
-      order: [["createdAt", "ASC"]], // Ordenar por fecha de creación en orden descendente
-    });
+    const siguiente = await obtenerSiguienteTurno(filter);
+
+    const actual = await obtenerActualTurno(filter);
 
     res.json([actual, siguiente]);
   } catch (error) {
@@ -47,36 +39,9 @@ router.get("/turnosBox/:filter", async (req, res) => {
 
 router.get("/turnosVisor", async (req, res) => {
   try {
-    const turnos = await Turno.findAll({
-      limit: 3, // Limitar la cantidad de registros a 3
-      where: {
-        estado: {
-          [Op.or]: ["Actual", "Ventas"],
-        },
-        [Op.or]: [
-          {
-            nombre_turno: {
-              [Op.like]: "%BOX%", // FILTROS DISPONIBLES: BOX1, BOX2
-            },
-          },
-          {
-            nombre_turno: "C",
-          },
-        ],
-      },
-      order: [
-        ["nombre_turno", "ASC"],
-        ["createdAt", "ASC"],
-      ], // Ordenar por fecha de creación en orden descendente
-    });
+    const informacionTurno = await obtenerInformacionTurno();
 
-    const result = {
-      Box1: turnos[0],
-      Box2: turnos[1],
-      Ventas: turnos[2],
-    };
-
-    res.json(result);
+    res.json(informacionTurno);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error al obtener los turnos" });
@@ -85,14 +50,9 @@ router.get("/turnosVisor", async (req, res) => {
 
 router.get("/cantidadTurnos/:num", async (req, res) => {
   try {
-    const count = await Turno.count({
-      where: {
-        estado: "Espera",
-        nombre_turno: {
-          [Op.like]: `%BOX%${req.params.num}`,
-        },
-      },
-    });
+    const num = req.params.num;
+
+    const count = await obtenerCantidadBox(num);
 
     res.json(count);
   } catch (error) {
@@ -115,7 +75,7 @@ router.post("/", async (req, res) => {
 
     // Define los argumentos que deseas pasar al script de Python
     const turno = req.body.nombre_turno;
-
+    /*
     // Comando para ejecutar el script de Python con argumentos
     const pythonScriptPath = "./Script/print_script.py";
     const pythonProcess = spawn("python", [pythonScriptPath, turno]);
@@ -133,8 +93,8 @@ router.post("/", async (req, res) => {
     pythonProcess.on("close", (code) => {
       console.log(`Proceso de Python cerrado con código de salida ${code}`);
     });
-
-    res.status(200).json({ nuevoTurno });
+    */
+    res.status(200).json({ turno });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error al crear el turno" });

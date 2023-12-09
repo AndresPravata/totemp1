@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Turno } from "./Box1";
-import { HOST } from "@/lib/utils";
+import { HOST, SOCKET } from "@/lib/utils";
+import { io } from "socket.io-client";
 
 interface TurnoState {
   Box1: Turno | null;
@@ -18,14 +19,34 @@ const Visor = () => {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get(
-        `${HOST}/turnos/turnosVisor`
-      );
+      const response = await axios.get(`${HOST}/turnos/turnosVisor`);
       setTurnoState(response.data);
     } catch (error) {
       console.error("Error al obtener los turnos", error);
     }
   };
+
+  useEffect(() => {
+    const socket = io(`${SOCKET}`);
+
+    socket.on("connect", () => {
+      console.log("Conexión Socket.IO establecida con éxito");
+    });
+
+    socket.on("consultarTurnos", (turno) => {
+      console.log("turnos recibidos correctamente");
+      setTurnoState(turno);
+    });
+
+    socket.on("disconnect", () => {
+      console.log("Desconexión Socket.IO");
+    });
+
+    return () => {
+      // Desconectar al desmontar el componente
+      socket.disconnect();
+    };
+  }, []);
 
   useEffect(() => {
     fetchData();

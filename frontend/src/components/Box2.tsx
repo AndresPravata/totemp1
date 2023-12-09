@@ -20,12 +20,8 @@ const Box2 = () => {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get(
-        `${HOST}/turnos/turnosBox/BOX2`
-      );
-      const cantidad = await axios.get(
-        `${HOST}/turnos/cantidadTurnos/2`
-      );
+      const response = await axios.get(`${HOST}/turnos/turnosBox/BOX2`);
+      const cantidad = await axios.get(`${HOST}/turnos/cantidadTurnos/2`);
 
       setCantidadState(cantidad.data);
 
@@ -35,6 +31,7 @@ const Box2 = () => {
         actual: response.data[0],
         siguiente: response.data[1],
       });
+      socket?.emit("actualizarTurnos");
     } catch (error) {
       console.error("Error al obtener los turnos", error);
     }
@@ -42,23 +39,34 @@ const Box2 = () => {
 
   const next = async () => {
     try {
-      await axios.put(
-        `${HOST}/turnos/${
-          turnoState.actual == null ? 0 : turnoState.actual.id
-        }`,
-        {
-          estado: "Finalizado",
-        }
-      );
+      if (turnoState.actual == null) {
+        await axios.put(
+          `${HOST}/turnos/${
+            turnoState.siguiente == null ? 0 : turnoState.siguiente.id
+          }`,
+          {
+            estado: "Actual",
+          }
+        );
+      } else {
+        await axios.put(
+          `${HOST}/turnos/${
+            turnoState.actual == null ? 0 : turnoState.actual.id
+          }`,
+          {
+            estado: "Finalizado",
+          }
+        );
 
-      await axios.put(
-        `${HOST}/turnos/${
-          turnoState.siguiente == null ? 0 : turnoState.siguiente.id
-        }`,
-        {
-          estado: "Actual",
-        }
-      );
+        await axios.put(
+          `${HOST}/turnos/${
+            turnoState.siguiente == null ? 0 : turnoState.siguiente.id
+          }`,
+          {
+            estado: "Actual",
+          }
+        );
+      }
 
       fetchData();
     } catch (error) {
@@ -118,6 +126,15 @@ const Box2 = () => {
       setIsPresent(estado === "presente");
       // Guardar el estado en LocalStorage
       localStorage.setItem("veterinario2Presente", estado);
+    });
+
+    socket.on("consultarBox", (boxState) => {
+      console.log(boxState);
+      setTurnoState({
+        actual: boxState[0],
+        siguiente: boxState[1],
+      });
+      setCantidadState(boxState[2]);
     });
 
     setSocket(socket);

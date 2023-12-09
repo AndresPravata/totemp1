@@ -17,7 +17,7 @@ interface TurnoState {
   siguiente: Turno | null;
 }
 
-const Box1 = () => {
+const Box4 = () => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isPresent, setIsPresent] = useState(false);
   const [cantidadState, setCantidadState] = useState(0);
@@ -40,6 +40,7 @@ const Box1 = () => {
         actual: response.data[0],
         siguiente: response.data[1],
       });
+      socket?.emit("actualizarTurnos");
     } catch (error) {
       console.error("Error al obtener los turnos", error);
     }
@@ -47,23 +48,34 @@ const Box1 = () => {
 
   const next = async () => {
     try {
-      await axios.put(
-        `${HOST}/turnos/${
-          turnoState.actual == null ? 0 : turnoState.actual.id
-        }`,
-        {
-          estado: "Finalizado",
-        }
-      );
+      if (turnoState.actual == null) {
+        await axios.put(
+          `${HOST}/turnos/${
+            turnoState.siguiente == null ? 0 : turnoState.siguiente.id
+          }`,
+          {
+            estado: "Actual",
+          }
+        );
+      } else {
+        await axios.put(
+          `${HOST}/turnos/${
+            turnoState.actual == null ? 0 : turnoState.actual.id
+          }`,
+          {
+            estado: "Finalizado",
+          }
+        );
 
-      await axios.put(
-        `${HOST}/turnos/${
-          turnoState.siguiente == null ? 0 : turnoState.siguiente.id
-        }`,
-        {
-          estado: "Actual",
-        }
-      );
+        await axios.put(
+          `${HOST}/turnos/${
+            turnoState.siguiente == null ? 0 : turnoState.siguiente.id
+          }`,
+          {
+            estado: "Actual",
+          }
+        );
+      }
 
       fetchData();
     } catch (error) {
@@ -123,6 +135,15 @@ const Box1 = () => {
       setIsPresent(estado === "presente");
       // Guardar el estado en LocalStorage
       localStorage.setItem("veterinarioPresente", estado);
+    });
+
+    socket.on("consultarBox", (boxState) => {
+      console.log(boxState);
+      setTurnoState({
+        actual: boxState[0],
+        siguiente: boxState[1],
+      });
+      setCantidadState(boxState[2]);
     });
 
     setSocket(socket);
@@ -200,4 +221,4 @@ const Box1 = () => {
   );
 };
 
-export default Box1;
+export default Box4;
