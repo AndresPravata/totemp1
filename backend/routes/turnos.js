@@ -76,29 +76,29 @@ router.post("/", async (req, res) => {
     const turno = req.body.nombre_turno;
     
     // Comando para ejecutar el script de Python con argumentos
-    const pythonScriptPath = "./Script/print_script.py";
-    const pythonProcess = spawn("python", [pythonScriptPath, turno]);
+    const phpScriptPath = "./Script/php_script.php";
+    const phpProcess = spawn("php", [phpScriptPath, turno]);
     
-    let resultadoPython = "";
-    let errorPython = "";
+    let resultadoPhp = "";
+    let errorPhp = "";
     
-    pythonProcess.stdout.on("data", (data) => {
-      resultadoPython = data.toString();
-      console.log(`Resultado del script: ${resultadoPython}`);
+    phpProcess.stdout.on("data", (data) => {
+      resultadoPhp = data.toString();
+      console.log(`Resultado del script: ${resultadoPhp}`);
     });
     
-    pythonProcess.stderr.on("data", (data) => {
-      errorPython = data.toString();
-      console.error(`Error en la salida estándar de error: ${errorPython}`);
+    phpProcess.stderr.on("data", (data) => {
+      errorPhp = data.toString();
+      console.error(`Error en la salida estándar de error: ${errorPhp}`);
     });
     
-    pythonProcess.on("close", (code) => {
-      console.log(`Proceso de Python cerrado con código de salida ${code}`);
+    phpProcess.on("close", (code) => {
+      console.log(`Proceso de Php cerrado con código de salida ${code}`);
     
-      if (errorPython) {
-        res.status(500).json({ error: errorPython });
+      if (errorPhp) {
+        res.status(500).json({ error: errorPhp });
       } else {
-        res.status(200).json({ resultado: resultadoPython, turno });
+        res.status(200).json({ resultado: resultadoPhp, turno });
       }
     });
     
