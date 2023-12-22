@@ -15,7 +15,7 @@ $printer = new Printer($connector);
 $printer->setJustification(Printer::JUSTIFY_CENTER);
 
 # Importamos la imagen
-$logo = EscposImage::load("./img/logo.png");
+$logo = EscposImage::load("./Script/img/logo.png");
 
 // Imprime la imagen con la posición y tamaño ajustados
 $printer->bitImage($logo);
