@@ -44,6 +44,7 @@
 4. Ingresar dentro de la carpeta "frontend" y ejecutar el siguiente comando:
 
    ```bash
+   npm install --legacy-peer-deps
    npm run build
    ```
 
