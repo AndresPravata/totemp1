@@ -54,7 +54,7 @@
 
    - Una vez alli, Copiamos y pegamos lo siguiente:
 
-     ```
+     ```xml
     <IfModule mod_rewrite.c>
         RewriteEngine On
         RewriteBase /
