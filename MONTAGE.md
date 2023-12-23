@@ -54,15 +54,15 @@
 
    - Una vez alli, Copiamos y pegamos lo siguiente:
 
-     ```xml
-    <IfModule mod_rewrite.c>
-        RewriteEngine On
-        RewriteBase /
-        RewriteRule ^index\.html$ - [L]
-        RewriteCond %{REQUEST_FILENAME} !-f
-        RewriteCond %{REQUEST_FILENAME} !-d
-        RewriteRule . /index.html [L]
-    </IfModule>
+     ```
+       <IfModule mod_rewrite.c>
+           RewriteEngine On
+           RewriteBase /
+           RewriteRule ^index\.html$ - [L]
+           RewriteCond %{REQUEST_FILENAME} !-f
+           RewriteCond %{REQUEST_FILENAME} !-d
+           RewriteRule . /index.html [L]
+       </IfModule>
      ```
 
 7. Finalmente iniciar los servicios de apache y mysql en xampp. (la url de la pagina es "veterinaria.local")
