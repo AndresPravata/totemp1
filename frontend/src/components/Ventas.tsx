@@ -57,7 +57,7 @@ const Ventas = () => {
       String(Number(localStorage.getItem(`turnoBox4`) ?? "0") + 1)
     );
 
-    await postData(4, `C${localStorage.getItem(`turnoBox4`) ?? "0"} BOX4`);
+    await postData(4, `C${localStorage.getItem(`turnoBox4`) ?? "0"} VENTAS`);
     const box = `C`;
     socket.emit("actualizarBox", { box });
     socket.emit("actualizarTurnos");
