@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import axios from "axios";
 import { HOST, SOCKET } from "@/lib/utils";
+import toast from "react-hot-toast";
 
 export interface Turno {
   id: number;
@@ -90,6 +91,7 @@ const Box4 = () => {
           estado: "Iniciado",
         }
       );
+      toast.success("Turno iniciado");
       setTurnoState({ ...turnoState, actual: response.data });
     } catch (error) {
       console.error("Error al actualizar el turno", error);
@@ -107,6 +109,7 @@ const Box4 = () => {
           estado: "Finalizado",
         }
       );
+      toast.success("Turno finalizado");
       setTurnoState({ ...turnoState, actual: response.data });
     } catch (error) {
       console.error("Error al actualizar el turno", error);

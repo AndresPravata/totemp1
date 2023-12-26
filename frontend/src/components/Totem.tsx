@@ -21,7 +21,7 @@ const Totem = () => {
         backgroundSize: "cover",
       }}
     >
-      <div className="flex flex-col gap-20">
+      <div className="flex flex-col gap-20 mt-14">
         <div className="flex justify-center items-center flex-col gap-12 mt-6">
           <img
             src="logo.svg"
@@ -38,27 +38,31 @@ const Totem = () => {
 
         <div className="flex items-center justify-center gap-10 flex-col xs:flex-row">
           <div className="grid gap-8 items-start justify-center">
-            <div className="relative group">
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-gray-600 to-sky-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-500 group-hover:duration-500  animate-tilt"></div>
-              <Button
-                className="relative px-7 py-4 bg-black rounded-lg leading-none flex items-center divide-x divide-gray-600 text-2xl uppercase w-52 h-15 hover:bg-black"
-                size={"sm"}
-                onClick={handleVentas}
-              >
-                Ventas
-              </Button>
+            <div className="h-full w-full bg-gray-500 rounded-md bg-clip-padding backdrop-filter backdrop-blur-lg bg-opacity-0 border border-gray-100">
+              <div className="relative group">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-gray-600 to-sky-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-500 group-hover:duration-500  animate-tilt"></div>
+                <Button
+                  className="relative px-7 py-4 bg-transparent rounded-lg leading-none flex items-center divide-x divide-gray-600 text-2xl uppercase w-52 h-15 hover:bg-black"
+                  size={"sm"}
+                  onClick={handleVentas}
+                >
+                  Ventas
+                </Button>
+              </div>
             </div>
           </div>
           <div className="grid gap-8 items-start justify-center">
-            <div className="relative group">
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-gray-600 to-sky-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-500 group-hover:duration-500  animate-tilt"></div>
-              <Button
-                className="relative px-7 py-4 bg-black rounded-lg leading-none flex items-center divide-x divide-gray-600 text-2xl uppercase w-42 h-15 hover:bg-black"
-                size={"sm"}
-                onClick={handleVeterinaria}
-              >
-                Veterinaria
-              </Button>
+            <div className="h-full w-full bg-gray-500 rounded-md bg-clip-padding backdrop-filter backdrop-blur-lg bg-opacity-0 border border-gray-100">
+              <div className="relative group">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-gray-600 to-sky-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-500 group-hover:duration-500  animate-tilt"></div>
+                <Button
+                  className="relative px-7 py-4 bg-transparent rounded-lg leading-none flex items-center divide-x divide-gray-600 text-2xl uppercase w-42 h-15 hover:bg-black"
+                  size={"sm"}
+                  onClick={handleVeterinaria}
+                >
+                  Veterinaria
+                </Button>
+              </div>
             </div>
           </div>
         </div>

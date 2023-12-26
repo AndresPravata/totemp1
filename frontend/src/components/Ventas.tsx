@@ -11,6 +11,7 @@ const Ventas = () => {
   const socket = io(`${SOCKET}`);
   const navigate = useNavigate();
   const [cantidadState, setCantidadState] = useState<number>(0);
+  const [isButtonDisabled, setButtonDisabled] = useState(false);
 
   const postData = async (box: number, nombre_turno: string) => {
     try {
@@ -33,9 +34,7 @@ const Ventas = () => {
 
   const fetchData = async () => {
     try {
-      const box4Answer = await axios.get(
-        `${HOST}/turnos/cantidadTurnos/4`
-      );
+      const box4Answer = await axios.get(`${HOST}/turnos/cantidadTurnos/4`);
 
       setCantidadState(box4Answer?.data);
     } catch (error) {
@@ -52,17 +51,19 @@ const Ventas = () => {
   }, []);
 
   const handleImprimirTurno = async () => {
+    setButtonDisabled(true);
     localStorage.setItem(
       `turnoBox4`,
       String(Number(localStorage.getItem(`turnoBox4`) ?? "0") + 1)
     );
 
-    await postData(4, `C${localStorage.getItem(`turnoBox4`) ?? "0"} VENTAS`);
+    await postData(4, `C${localStorage.getItem(`turnoBox4`) ?? "0"} BOX4`);
     const box = `C`;
     socket.emit("actualizarBox", { box });
     socket.emit("actualizarTurnos");
 
     navigate("/totem");
+    setButtonDisabled(false);
   };
 
   return (
@@ -78,19 +79,19 @@ const Ventas = () => {
         <NavBar />
         <div className="flex flex-col gap-20 mt-8">
           <div className="flex items-center justify-center gap-6 flex-col">
-            <h1 className=" text-white uppercase text-lg font-bold">
+            <h1
+              className=" uppercase font-bold text-2xl text-white"
+              style={{ WebkitTextStroke: "1.5px black" }}
+            >
               Turnos para venta
             </h1>
             <div className="grid gap-3 items-start justify-center">
               <div className="relative group">
-                {/* <div className="absolute -inset-0.5 bg-gradient-to-r from-gray-600 to-sky-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-500 group-hover:duration-500  animate-tilt"></div> */}
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-gray-600 to-sky-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-500 group-hover:duration-500  animate-tilt"></div>
                 <img
-                  src="veterinario1.png"
-                  alt="veterinario 1"
+                  src="ventas.png"
+                  alt="ventas"
                   className={`rounded-lg relative bg-black leading-none flex items-center divide-x divide-gray-600 uppercase px-0 xs:w-[30rem] w-72 h-15 cursor-pointer`}
-                  style={{
-                    border: "3px solid black",
-                  }}
                 />
               </div>
               {/* GET de los turnos que hay en espera */}
@@ -102,16 +103,19 @@ const Ventas = () => {
               </p>
             </div>
             <div className="grid gap-3 items-start justify-center">
-              <div className="relative group mb-10">
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-gray-600 to-sky-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-500 group-hover:duration-500  animate-tilt"></div>
-                <Button
-                  className="relative bg-black rounded-lg leading-none flex items-center divide-x divide-gray-600 uppercase text-2xl px-2"
-                  size={"sm"}
-                  type="submit"
-                  onClick={handleImprimirTurno}
-                >
-                  Imprimir Turno
-                </Button>
+              <div className=" bg-gray-400 rounded-md bg-clip-padding backdrop-filter backdrop-blur-lg bg-opacity-10 border border-gray-100 mb-10">
+                <div className="relative group">
+                  <div className="absolute -inset-0.5 bg-gradient-to-r from-gray-600 to-sky-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-500 group-hover:duration-500  animate-tilt"></div>
+                  <Button
+                    className="relative bg-transparent rounded-lg leading-none flex items-center divide-x divide-gray-600 uppercase text-2xl px-2 hover:bg-black"
+                    size={"sm"}
+                    type="submit"
+                    onClick={handleImprimirTurno}
+                    disabled={isButtonDisabled} // Use the state here
+                  >
+                    Imprimir Turno
+                  </Button>
+                </div>
               </div>
             </div>
           </div>

@@ -31,6 +31,7 @@ const Veterinarios = () => {
     box1: 0,
     box2: 0,
   });
+  const [isButtonDisabled, setButtonDisabled] = useState(false);
 
   const estadoVeterinario = useEstadoVeterinario();
   const estadoVeterinario2 = useEstadoVeterinario2();
@@ -105,14 +106,7 @@ const Veterinarios = () => {
 
   const handleImprimirTurno = async () => {
     let veterinarioSeleccionado = veterinarioSelected.veterinario;
-    if (estadoVeterinario === "presente" && estadoVeterinario2 === "ausente") {
-      veterinarioSeleccionado = 1;
-    } else if (
-      estadoVeterinario === "ausente" &&
-      estadoVeterinario2 === "presente"
-    ) {
-      veterinarioSeleccionado = 2;
-    }
+    setButtonDisabled(true);
 
     if (estadoVeterinario === "ausente" && estadoVeterinario2 === "ausente") {
       toast.error("Los veterinarios están ausentes Espere por favor");
@@ -139,6 +133,7 @@ const Veterinarios = () => {
       socket.emit("actualizarTurnos");
 
       navigate("/totem");
+      setButtonDisabled(false);
     }
   };
 
@@ -157,7 +152,7 @@ const Veterinarios = () => {
           <div className="flex items-center justify-center gap-6 flex-col">
             <div className="grid gap-3 items-start justify-center">
               <div className="relative group">
-                {/* <div className="absolute -inset-0.5 bg-gradient-to-r from-gray-600 to-sky-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-500 group-hover:duration-500  animate-tilt"></div> */}
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-gray-600 to-sky-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-500 group-hover:duration-500  animate-tilt"></div>
                 <img
                   src="veterinario1.png"
                   alt="veterinario 1"
@@ -200,7 +195,7 @@ const Veterinarios = () => {
             </div>
             <div className="grid gap-3 items-start justify-center">
               <div className="relative group">
-                {/* <div className="absolute -inset-0.5 bg-gradient-to-r from-gray-600 to-sky-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-500 group-hover:duration-500 animate-tilt"></div> */}
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-gray-600 to-sky-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-500 group-hover:duration-500 animate-tilt"></div>
                 <img
                   src="veterinario2.png"
                   alt="veterinario 2"
@@ -241,16 +236,19 @@ const Veterinarios = () => {
               </p>
             </div>
             <div className="grid gap-3 items-start justify-center">
-              <div className="relative group mb-10">
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-gray-600 to-sky-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-500 group-hover:duration-500  animate-tilt"></div>
-                <Button
-                  className="relative bg-black rounded-lg leading-none flex items-center divide-x divide-gray-600 uppercase text-2xl px-2"
-                  size={"sm"}
-                  type="submit"
-                  onClick={handleImprimirTurno}
-                >
-                  Imprimir Turno
-                </Button>
+              <div className="bg-gray-500 rounded-md bg-clip-padding backdrop-filter backdrop-blur-lg bg-opacity-0 border border-gray-100 mb-10">
+                <div className="relative group">
+                  <div className="absolute -inset-0.5 bg-gradient-to-r from-gray-600 to-sky-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-500 group-hover:duration-500  animate-tilt"></div>
+                  <Button
+                    className="relative bg-transparent rounded-lg leading-none flex items-center divide-x divide-gray-600 uppercase text-2xl px-2 hover:bg-black"
+                    size={"sm"}
+                    type="submit"
+                    onClick={handleImprimirTurno}
+                    disabled={isButtonDisabled}
+                  >
+                    Imprimir Turno
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
