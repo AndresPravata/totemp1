@@ -71,7 +71,7 @@ router.post("/", async (req, res) => {
       numero_box: req.body.numero_box,
       veterinario_id: req.body.veterinario_id,
     });
-    
+    /*
     // Define los argumentos que deseas pasar al script de Python
     const turno = req.body.nombre_turno;
     
@@ -101,7 +101,7 @@ router.post("/", async (req, res) => {
         res.status(200).json({ resultado: resultadoPhp, turno });
       }
     });
-    
+    */
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error al crear el turno" });

@@ -19,12 +19,13 @@ const Ventas = () => {
         await axios.post(`${HOST}/turnos/`, {
           nombre_turno: nombre_turno,
           numero_box: box,
-          estado: "Actual",
+          estado: "Actual"
         });
       } else {
         await axios.post(`${HOST}/turnos/`, {
           nombre_turno: nombre_turno,
           numero_box: box,
+          estado: "Ventas"
         });
       }
     } catch (error) {

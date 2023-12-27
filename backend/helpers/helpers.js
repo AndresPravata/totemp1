@@ -16,7 +16,7 @@ export const obtenerInformacionTurno = async () => {
             },
           },
           {
-            nombre_turno: "C",
+            nombre_turno: "C%",
           },
         ],
       },
@@ -27,9 +27,9 @@ export const obtenerInformacionTurno = async () => {
     });
 
     const result = {
-      Box1: turnos[0].nombre_turno !== null ? turnos[0] : (turnos[1].nombre_turno !== null ? turnos[1] : turnos[2]),
-      Box2: turnos[1].nombre_turno !== null ? turnos[1] : (turnos[2].nombre_turno !== null ? turnos[2] : null),
-      Ventas: turnos[2]
+      Box1: turnos[0]?.nombre_turno.startsWith("C") ? null : turnos[0],
+      Box2: turnos[1]?.nombre_turno.startsWith("C") ? null : turnos[1],
+      Ventas: turnos[2]?.nombre_turno.startsWith("C") ? turnos[2] : null,
     };
 
     return result;

@@ -6,6 +6,7 @@ use Mike42\Escpos\PrintConnectors\WindowsPrintConnector;
 
 
 $turno = $_SERVER["argv"][1];
+$turno = substr($turno, -4) === "BOX4" ? substr($turno, 0, -4) . "VENTAS" : $turno;
 
 $nombre_impresora = "80mm Series Printer";
 $connector = new WindowsPrintConnector($nombre_impresora);

@@ -20,6 +20,7 @@ const Visor = () => {
   const fetchData = async () => {
     try {
       const response = await axios.get(`${HOST}/turnos/turnosVisor`);
+      
       setTurnoState(response.data);
     } catch (error) {
       console.error("Error al obtener los turnos", error);
@@ -73,7 +74,7 @@ const Visor = () => {
             <h2 className="text-4xl mb-2 font-semibold uppercase">Ventas</h2>
             <div className="rounded-2xl border-2 text-3xl border-white p-6 my-2">
               {/* GET del turno de ventas */}
-              {turnoState.Ventas?.nombre_turno?.substring(0, 2) ?? ""}
+              {turnoState.Ventas?.nombre_turno?.slice(0, -4) ?? ""}
             </div>
           </div>
         </div>
