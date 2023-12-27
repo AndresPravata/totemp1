@@ -25,7 +25,7 @@ const Ventas = () => {
         await axios.post(`${HOST}/turnos/`, {
           nombre_turno: nombre_turno,
           numero_box: box,
-          estado: "Ventas"
+          estado: "Espera"
         });
       }
     } catch (error) {
@@ -59,7 +59,7 @@ const Ventas = () => {
     );
 
     await postData(4, `C${localStorage.getItem(`turnoBox4`) ?? "0"} BOX4`);
-    const box = `C`;
+    const box = `BOX4`;
     socket.emit("actualizarBox", { box });
     socket.emit("actualizarTurnos");
 

@@ -4,21 +4,11 @@ import { Op } from "sequelize";
 export const obtenerInformacionTurno = async () => {
   try {
     const turnos = await Turno.findAll({
-      limit: 3, // Limitar la cantidad de registros a 3
       where: {
-        estado: {
-          [Op.or]: ["Actual", "Ventas"],
-        },
-        [Op.or]: [
-          {
-            nombre_turno: {
-              [Op.like]: "%BOX%", // FILTROS DISPONIBLES: BOX1, BOX2
-            },
-          },
-          {
-            nombre_turno: "C%",
-          },
-        ],
+        estado: "Actual",
+        nombre_turno: {
+          [Op.like]: "%BOX%",
+        }
       },
       order: [
         ["nombre_turno", "ASC"],
@@ -26,10 +16,19 @@ export const obtenerInformacionTurno = async () => {
       ], // Ordenar por fecha de creación en orden descendente
     });
 
+    const venta = await Turno.findOne({
+      where: {
+        estado: "Actual",
+        nombre_turno: {
+          [Op.like]: "C%",
+        }
+      }
+    });
+
     const result = {
       Box1: turnos[0]?.nombre_turno.startsWith("C") ? null : turnos[0],
       Box2: turnos[1]?.nombre_turno.startsWith("C") ? null : turnos[1],
-      Ventas: turnos[2]?.nombre_turno.startsWith("C") ? turnos[2] : null,
+      Ventas: venta
     };
 
     return result;
