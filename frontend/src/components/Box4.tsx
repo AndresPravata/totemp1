@@ -126,7 +126,7 @@ const Box4 = () => {
 
     socket.on("consultarBox", (boxState) => {
       console.log(boxState);
-      if (boxState[3] == "C") {
+      if (boxState[3] == "4") {
         console.log(boxState);
         setTurnoState({
           actual: boxState[0],

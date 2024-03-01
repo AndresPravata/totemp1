@@ -10,6 +10,13 @@ interface TurnoState {
   Ventas: Turno | null;
 }
 
+const audio = new Audio("/sonido-turno.mp3");
+
+const playNotificationSound = () => {
+  audio.currentTime = 0;
+  audio.play();
+};
+
 const Visor = () => {
   const [turnoState, setTurnoState] = useState<TurnoState>({
     Box1: null,
@@ -20,7 +27,6 @@ const Visor = () => {
   const fetchData = async () => {
     try {
       const response = await axios.get(`${HOST}/turnos/turnosVisor`);
-      
       setTurnoState(response.data);
     } catch (error) {
       console.error("Error al obtener los turnos", error);
@@ -37,6 +43,8 @@ const Visor = () => {
     socket.on("consultarTurnos", (turno) => {
       console.log("turnos recibidos correctamente");
       setTurnoState(turno);
+
+      playNotificationSound();
     });
 
     socket.on("disconnect", () => {
@@ -44,7 +52,6 @@ const Visor = () => {
     });
 
     return () => {
-      // Desconectar al desmontar el componente
       socket.disconnect();
     };
   }, []);
@@ -55,26 +62,24 @@ const Visor = () => {
 
   return (
     <div className="flex h-screen">
-      <div className="w-[20%] bg-gray-800 text-white p-4 overflow-hidden bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-slate-900 via-zinc-950 to-black text-center gap-12 flex flex-col justify-center">
+      <div className="w-[23%] bg-gray-800 text-white p-4 overflow-hidden bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-slate-900 via-zinc-950 to-black text-center gap-12 flex flex-col justify-center">
         <div className="flex flex-col gap-9 ml-10">
           <div className="flex flex-col">
-            <h2 className="text-4xl mb-2 font-semibold uppercase ">
+            <h2 className="text-4xl mb-2 font-semibold uppercase z-50">
               Veterinaria
             </h2>
-            <div className="rounded-2xl border-2 text-3xl border-white p-6 my-2 font-normal">
+            <div className="rounded-2xl border-2 text-4xl border-white p-6 my-2 font-bold">
               {/* GET del turno al que da inicio el veterinario 1 */}
               {turnoState.Box1?.nombre_turno ?? ""}
             </div>
-            <div className="rounded-2xl border-2 text-3xl border-white p-6 my-2">
-              {/* GET del turno al que da inicio el veterinario 2*/}
+            <div className="rounded-2xl border-2 text-4xl border-white p-6 my-2 font-bold">
               {turnoState.Box2?.nombre_turno ?? ""}
             </div>
           </div>
           <div className="flex flex-col">
             <h2 className="text-4xl mb-2 font-semibold uppercase">Ventas</h2>
-            <div className="rounded-2xl border-2 text-3xl border-white p-6 my-2">
-              {/* GET del turno de ventas */}
-              {turnoState.Ventas?.nombre_turno?.slice(0, -4) ?? ""}
+            <div className="rounded-2xl border-2 text-4xl border-white p-6 my-2 font-bold">
+              {turnoState.Ventas?.nombre_turno?.substring(0, 2) ?? ""}
             </div>
           </div>
         </div>
@@ -91,6 +96,7 @@ const Visor = () => {
           className="h-full w-screen"
           loop
           autoPlay
+          controls
           src="/visor-video.mp4"
         ></video>
       </div>

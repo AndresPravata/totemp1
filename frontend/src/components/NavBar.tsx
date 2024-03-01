@@ -19,15 +19,17 @@ const NavBar = () => {
             Veterinaria Dr.Luffi
           </span>
         </div>
-        <div className="relative group">
-          <div className="absolute -inset-0.5 bg-gradient-to-r from-gray-600 to-sky-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-500 group-hover:duration-500 animate-tilt "></div>
-          <Button
-            className="relative px-4 py-4 bg-black rounded-lg leading-none flex items-center divide-x divide-gray-600 text-2xl uppercase hover:bg-black"
-            size={"sm"}
-            onClick={handleBack}
-          >
-            <FaArrowLeftLong />
-          </Button>
+        <div className=" bg-gray-500 rounded-md bg-clip-padding backdrop-filter backdrop-blur-lg bg-opacity-0 border border-gray-100">
+          <div className="relative group">
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-gray-600 to-sky-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-500 group-hover:duration-500 animate-tilt "></div>
+            <Button
+              className="relative px-4 py-4 bg-transparent rounded-lg leading-none flex items-center divide-x divide-gray-600 text-2xl uppercase hover:bg-black"
+              size={"sm"}
+              onClick={handleBack}
+            >
+              <FaArrowLeftLong />
+            </Button>
+          </div>
         </div>
       </div>
     </nav>

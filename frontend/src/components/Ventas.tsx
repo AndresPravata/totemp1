@@ -19,7 +19,7 @@ const Ventas = () => {
         await axios.post(`${HOST}/turnos/`, {
           nombre_turno: nombre_turno,
           numero_box: box,
-          estado: "Actual"
+          estado: "Actual",
         });
       } else {
         await axios.post(`${HOST}/turnos/`, {
@@ -63,8 +63,8 @@ const Ventas = () => {
     socket.emit("actualizarBox", { box });
     socket.emit("actualizarTurnos");
 
+    //setTimeout(() => setButtonDisabled(false), 2000);
     navigate("/totem");
-    setButtonDisabled(false);
   };
 
   return (

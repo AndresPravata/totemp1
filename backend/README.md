@@ -13,9 +13,7 @@ La documentación completa de la API se encuentra disponible a través de Swagge
 ### Requisitos
 
 - Node.js
-- Npm
-- Composer
-- Php
+- npm
 
 ### Instalación
 
@@ -52,8 +50,8 @@ PORT_LISTEN=
 
 4. Instala las dependencias del Script en python (debes estar situado en el directorio "Scripts"):
 
-```bash
-composer install
+```python
+pip install -r requirements.txt
 ```
 
 4. Ejecuta el proyecto en la carpeta raiz:

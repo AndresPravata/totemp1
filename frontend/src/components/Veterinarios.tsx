@@ -131,10 +131,10 @@ const Veterinarios = () => {
       const box = `BOX${veterinarioSelected.box}`;
       socket.emit("actualizarBox", { box });
       socket.emit("actualizarTurnos");
-
+      
       navigate("/totem");
-      setButtonDisabled(false);
     }
+    setTimeout(() => setButtonDisabled(false), 2000);
   };
 
   return (
@@ -146,7 +146,7 @@ const Veterinarios = () => {
         backgroundSize: "cover",
       }}
     >
-      <article className=" w-full min-h-[100vh]">
+      <article className=" w-full min-h-[100vh] mt-5">
         <NavBar />
         <div className="flex flex-col gap-20 mt-8">
           <div className="flex items-center justify-center gap-6 flex-col">

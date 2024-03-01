@@ -24,11 +24,10 @@ export const obtenerInformacionTurno = async () => {
         }
       }
     });
-
     const result = {
       Box1: turnos[0]?.nombre_turno.startsWith("C") ? null : turnos[0],
       Box2: turnos[1]?.nombre_turno.startsWith("C") ? null : turnos[1],
-      Ventas: venta
+      Ventas: venta,
     };
 
     return result;

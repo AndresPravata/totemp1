@@ -100,3 +100,6 @@
 .pointer-events-none {
   pointer-events: none;
 }
+html{
+  overflow-y: hidden;
+}
